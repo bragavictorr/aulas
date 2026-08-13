@@ -7,5 +7,3 @@ numeros = [[input("digite o primeiro numero")],
 ]
 
 print(numeros)
-
-num1 = []
