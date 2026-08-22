@@ -1,0 +1,15 @@
+td, th{
+    border: 1px solid black;
+    padding: 10px;
+}
+
+
+tbody tr :hover{
+    transition: all 0.3s ease-in-out;
+    background-color: rgb(5, 180, 255);
+    transform: scale(1.05);
+    box-shadow: 7px 12px 28px 4px rgba(5, 177, 225, 0.491);
+}
+table{
+    border-spacing: 10px;
+}
