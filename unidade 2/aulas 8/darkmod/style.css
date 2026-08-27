@@ -1,0 +1,22 @@
+:root {
+  --dominante: rgba(59, 88, 216, 0.825);
+  --secundaria: white;
+  --destaque: orange;
+}
+
+.dark {
+    --dominante: rgba(17, 28, 81, 0.825);
+    --secundaria: white;
+    --destaque: orange;
+}
+
+body{
+
+    background-color: var(--dominante);
+    transition: all 5s ease-in-out;
+}
+
+button{
+    background-color: var(--destaque);
+}
+
