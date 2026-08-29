@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>petspa</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+    />
+  </head>
+  <body>
+    <header>
+      <div class="container-fluid" id="barra-pesquisa">
+        <a href="">logo</a>
+        <form class="d-flex" role="search">
+          <input
+            class="form-control me-2"
+            type="search"
+            placeholder="Search"
+            aria-label="Search"
+          />
+          <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+      </div>
+
+      <nav>
+        <a href="">categorias</a>
+        <a href="">planos</a>
+        <a href="">veterinarios</a>
+        <a href="">banho e tosa</a>
+        <a href="">raçoes,brinquedos e produtos</a>
+      </nav>
+    </header>
+    <main>
+      <div class="container mb-5">
+        <div id="carouselExampleFade" class="carousel slide carousel-fade">
+          <div class="carousel-inner">
+            <div class="carousel-item active">
+              <img src="planobronze.png" class="d-block w-100" alt="..." />
+            </div>
+            <div class="carousel-item">
+              <img src="planoprata.png" class="d-block w-100" alt="..." />
+            </div>
+            <div class="carousel-item">
+              <img src="planoouro.png" class="d-block w-100" alt="..." />
+            </div>
+          </div>
+          <button
+            class="carousel-control-prev"
+            type="button"
+            data-bs-target="#carouselExampleFade"
+            data-bs-slide="prev"
+          >
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+          </button>
+          <button
+            class="carousel-control-next"
+            type="button"
+            data-bs-target="#carouselExampleFade"
+            data-bs-slide="next"
+          >
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+          </button>
+        </div>
+      </div>
+      <section>
+        <div class="container card d-flex flex-row gap-5" style="display: flex">
+          <video  src="veterinario.mp4" autoplay loop></video>
+          <div>
+            <h2>
+              🐾 Cuidado, carinho e excelência para quem faz parte da sua
+              família! ❤️
+            </h2>
+            <p>
+              Na nossa empresa, sabemos que seu pet não é apenas um animal — ele
+              é parte da família. Por isso, contamos com uma equipe de
+              veterinários altamente qualificados e especializados, preparados
+              para oferecer o melhor atendimento em cada momento. 💙 Cada animal
+              é tratado com carinho, atenção e respeito, porque acreditamos que
+              cuidar da saúde também significa proporcionar conforto, segurança
+              e bem-estar. 🩺 Nossos profissionais estão sempre preparados para
+              cuidar do seu pet com excelência e dedicação, buscando oferecer um
+              atendimento de qualidade e personalizado para cada necessidade.
+              🐶🐱 Seu melhor amigo merece o melhor cuidado. E aqui, cada pet
+              recebe o cuidado que gostaríamos que nossos próprios companheiros
+              recebessem. ✨ Porque para nós, cuidar de pets é mais do que um
+              trabalho. É uma forma de demonstrar amor.
+            </p>
+          </div>
+        </div>
+        <div class="container card d-flex flex-row garp-5" style="display: flex">
+          <h2></h2>
+          <img id="plano"     src="planos.png" alt="">
+        </div>
+        <div class="container card" style="display: flex"></div>
+        <div class="container card" style="display: flex"></div>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="sprint.js"></script>
+  </body>
+</html>

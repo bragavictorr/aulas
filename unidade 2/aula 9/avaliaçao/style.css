@@ -1,0 +1,32 @@
+.container-fluid {
+  display: flex;
+  justify-content: space-between;
+  background-color: blue;
+}
+
+nav {
+  display: flex;
+  justify-content: space-between;
+}
+
+form {
+  display: flex;
+  justify-content: center;
+}
+
+
+video {
+  width: 450px;
+}
+
+#barra-pesquisa{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    
+}
+
+#plano{
+    width: 450px;
+}
+
+
