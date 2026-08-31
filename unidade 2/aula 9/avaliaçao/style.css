@@ -1,12 +1,38 @@
+:root {
+  --principal: #5b2c83;
+  --destaque: #ffc107;
+  --fundo: #f4f4f4;
+  --branco: #ffffff;
+  --texto: #252525;
+}
+
+header {
+  background-color: #5b2c83;
+  padding: 2px 2px;
+}
+
+.logo img{
+  width: 64px;
+
+}
+
 .container-fluid {
   display: flex;
   justify-content: space-between;
-  background-color: blue;
+  background-color: var(--principal);
 }
 
 nav {
+
   display: flex;
-  justify-content: space-between;
+  justify-content: space-evenly;
+  background-color: var(--principal);
+  gap: 25px;
+  margin-top: 30px;
+}
+
+nav a:hover {
+  color: #ffc107;
 }
 
 form {
@@ -14,19 +40,70 @@ form {
   justify-content: center;
 }
 
-
 video {
   width: 450px;
 }
 
-#barra-pesquisa{
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    
+#barra-pesquisa {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
 }
 
-#plano{
-    width: 450px;
+#plano {
+  width: 400px;
 }
 
+#mercado {
+  width: 250px;
+}
 
+main {
+  background-color: #f4f4f4;
+  box-shadow: -1px 5px 15px 5px #000000;
+}
+
+footer {
+  background-color: #3b1b54;
+  color: white;
+  padding-top: 50px;
+  margin-top: 50px;
+  display: flex;
+  justify-content: center;
+}
+
+.footer-containe {
+  width: 90%;
+  max-width: 1200px;
+  margin: auto;
+
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 40px;
+}
+.footer-box {
+  display: flex;
+  flex-direction: column;
+}
+
+#card {
+  border-radius: 12px;
+  width: 300px;
+  padding: 20px;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  
+
+
+
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+ 
+  transform: scale(1.1);
+}
+
+a{
+  color: #ffffff !important;
+}

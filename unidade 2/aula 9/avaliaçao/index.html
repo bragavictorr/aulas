@@ -11,9 +11,10 @@
     />
   </head>
   <body>
-    <header>
+    <header >
+      <!-- BARRA DE PESQUISAS -->
       <div class="container-fluid" id="barra-pesquisa">
-        <a href="">logo</a>
+        <a class="logo"    href=""><img src="logo.jpg" alt=""></a>
         <form class="d-flex" role="search">
           <input
             class="form-control me-2"
@@ -24,15 +25,17 @@
           <button class="btn btn-outline-success" type="submit">Search</button>
         </form>
       </div>
-
-      <nav>
-        <a href="">categorias</a>
-        <a href="">planos</a>
-        <a href="">veterinarios</a>
-        <a href="">banho e tosa</a>
-        <a href="">raçoes,brinquedos e produtos</a>
+      <hr>
+<!-- BARRA DE SERVIÇOS -->
+      <nav class="mb-5">
+        <a class="button" href="#">categorias</a>
+        <a class="button" href="#">planos</a>
+        <a class="button" href="#">veterinarios</a>
+        <a class="button" href="#">banho e tosa</a>
+        <a class="button" href="#">produtos</a>
       </nav>
     </header>
+    <!-- CARROSEL -->
     <main>
       <div class="container mb-5">
         <div id="carouselExampleFade" class="carousel slide carousel-fade">
@@ -67,9 +70,14 @@
           </button>
         </div>
       </div>
+
+      <!-- CARD DAS EXPLICAÇOES -->
       <section>
-        <div class="container card d-flex flex-row gap-5" style="display: flex">
-          <video  src="veterinario.mp4" autoplay loop></video>
+        <div
+          class="container card d-flex flex-row gap-5 mb-5"
+          style="display: flex"
+        >
+          <video src="veterinario.mp4" autoplay loop></video>
           <div>
             <h2>
               🐾 Cuidado, carinho e excelência para quem faz parte da sua
@@ -92,13 +100,102 @@
             </p>
           </div>
         </div>
-        <div class="container card d-flex flex-row garp-5" style="display: flex">
-          <h2></h2>
-          <img id="plano"     src="planos.png" alt="">
+        <div
+          class="container card d-flex flex-row gap-5 mb-5"
+          style="display: flex"
+        >
+          <div>
+            <h2>🐾✨ O JEITO MAIS INTELIGENTE DE CUIDAR DO SEU PET! ✨🐾</h2>
+            <p>
+              Chegaram os Planos de Cuidados PetShop! A forma perfeita de
+              garantir a saúde e a felicidade do seu melhor amigo, pagando um
+              valor fixo que cabe no seu bolso. Como Funciona (É Simples e
+              Vantajoso): Escolha seu nível de carinho: Temos opções pensadas
+              para cada necessidade e orçamento, do básico ao VIP. Pague um
+              valor fixo mensal: Em vez de pagar cada serviço avulso, você paga
+              uma mensalidade super econômica. Use sem surpresas: Durante a
+              vigência do plano (ex: 1 ano), você tem direito a um pacote de
+              serviços essenciais (como banhos e consultas) sem pagar nada a
+              mais por eles no momento do uso. Economia real: No final das
+              contas, você gasta muito menos do que se pagasse por cada consulta
+              ou banho separadamente. É perfeito para você e para ele! ✅ Saúde
+              em dia: Facilita o acompanhamento preventivo com veterinários. ✅
+              Higiene garantida: Seu pet sempre limpo e cheiroso. ✅ Bolso
+              feliz: Previsibilidade de gastos e economia garantida.
+            </p>
+          </div>
+          <img id="plano" src="planos.png" alt="" />
         </div>
-        <div class="container card" style="display: flex"></div>
-        <div class="container card" style="display: flex"></div>
+
+        <div class="container card d-flex flex-row gap-5" style="display: flex">
+          <img id="mercado" src="produtos.png" alt="" />
+          <div>
+            <h2>🐾 Tudo o que seu pet precisa em um só lugar! 🐾</h2>
+            <p>
+              Na nossa empresa, você encontra uma linha completa de produtos
+              para cuidar do seu melhor amigo com qualidade, segurança e
+              carinho. ❤️ 🥩 Alimentos de qualidade para cães e gatos, pensados
+              para ajudar na nutrição e no bem-estar do seu pet. 🦴 Petiscos e
+              agrados para deixar os momentos especiais ainda mais gostosos. 🧴
+              Produtos de higiene e cuidados para manter seu pet sempre limpo,
+              saudável e confortável. 🎾 Brinquedos e acessórios para
+              proporcionar diversão, conforto e qualidade de vida. 💊 Produtos
+              para cuidados especiais, sempre buscando oferecer opções
+              confiáveis para as necessidades do seu pet. ✨ Qualidade para o
+              seu pet, tranquilidade para você! Porque sabemos que quem ama,
+              cuida. E aqui você encontra tudo para oferecer ao seu companheiro
+              uma vida com mais saúde, conforto, diversão e muito amor. 🐶🐱❤️
+            </p>
+          </div>
+        </div>
+      
       </section>
+
+        <!--INFORMAÇOES DO FOOTER -->
+      <footer>
+        <div class="footer-containe">
+          <div class="footer-box">
+            <h5>🐾 1. Sobre a empresa</h5>
+            <a class="descriçao" href="">>Quem somos</a>
+            <a class="descriçao" href="">compromisso com os pets</a>
+            <a class="descriçao" href="">
+              Atendimento veterinário especializado</a
+            >
+            <a class="descriçao" href="">Qualidade e carinho</a>
+          </div>
+          <div class="footer-box">
+            <h5>🏪 2. Localização</h5>
+            <h6>PetShop Amor Animal</h6>
+            <a class="descriçao" href="">📍 Rua dos Animais, 250 – Centro</a>
+            <a class="descriçao" href="">📍 Nova Friburgo – RJ</a>
+            <a class="descriçao" href="">📮 CEP: 28600-000</a>
+          </div>
+          <div class="footer-box">
+            <h5>📞 3. Contato</h5>
+            <a class="descriçao" href="">📱 WhatsApp: (22) 99999-9999</a>
+            <a class="descriçao" href="">☎️ Telefone: (22) 3333-4444</a>
+            <a class="descriçao" href="">
+              📧 E-mail: contato@amoranimal.com.br</a
+            >
+          </div>
+          <div class="footer-box">
+            <h5>🏷️ 4. Marcas famosas</h5>
+            <h6>Marcas que você encontra aqui</h6>
+            <p>🐶 Premier</p>
+            <p>🐱 Royal Canin</p>
+            <p>🐾 Pedigree</p>
+            <p>🐾 Whiskas</p>
+            <p>🐾 GranPlus</p>
+            <p>🐾 Purina</p>
+          </div>
+          <div class="footer-box">
+            <h6 class="final">
+              Cuidar do seu pet é cuidar de quem faz parte da sua família." 🐾
+            </h6>
+            <p class=" final">© 2026 PetShop Amor Animal — Todos os direitos reservados.</p>
+          </div>
+        </div>
+      </footer>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
