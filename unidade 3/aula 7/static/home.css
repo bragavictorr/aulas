@@ -1,0 +1,77 @@
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Corpo da página */
+body {
+    background-color: #0f172a;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+/* Cabeçalho */
+header {
+    background-color: #1e293b;
+    padding: 20px;
+}
+
+/* Menu */
+nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+}
+
+/* Links */
+nav a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+/* Efeito ao passar o mouse */
+nav a:hover {
+    color: #38bdf8;
+}
+
+/* Conteúdo principal */
+main {
+    min-height: 80vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+/* Seção */
+section {
+    padding: 40px;
+}
+
+/* Texto */
+section p {
+    font-size: 32px;
+    margin-bottom: 25px;
+}
+
+/* Botões */
+button {
+    background-color: #38bdf8;
+    color: #0f172a;
+    border: none;
+    padding: 12px 25px;
+    margin: 5px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* Hover dos botões */
+button:hover {
+    background-color: #0284c7;
+    color: white;
+}
