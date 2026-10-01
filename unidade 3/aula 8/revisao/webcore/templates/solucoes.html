@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block conteudo_principal %}
+
+<section class="pagina-solucoes">
+
+    <div class="solucoes-intro">
+
+        <span>
+            UMA TECNOLOGIA CRIADA PELA NOSSA SOFTWARE HOUSE
+        </span>
+
+        <h1>Conheça o Vasco Connect</h1>
+
+        <p>
+            Uma plataforma digital fictícia desenvolvida para conectar
+            o Vasco da Gama aos seus torcedores através de informação,
+            tecnologia e inovação.
+        </p>
+
+    </div>
+
+    <div class="solucoes-grid">
+
+        {% for solucao in lista_solucoes %}
+
+        <div class="solucao-card">
+
+            <div class="solucao-imagem">
+
+                <img
+                    src="{{ solucao.image_url }}"
+                    alt="{{ solucao.titulo }}"
+                >
+
+            </div>
+
+            <div class="solucao-conteudo">
+
+                <h2>{{ solucao.titulo }}</h2>
+
+                <p>
+                    {{ solucao.descricao }}
+                </p>
+
+                <span class="solucao-preco">
+                    R$ {{ solucao.preco }}
+                </span>
+
+                <a href="#" class="solucao-botao">
+                    Saiba mais
+                </a>
+
+            </div>
+
+        </div>
+
+        {% empty %}
+
+        <p class="sem-solucoes">
+            Nenhuma solução cadastrada no momento.
+        </p>
+
+        {% endfor %}
+
+    </div>
+
+    <div class="solucoes-final">
+
+        <h2>
+            Uma nova forma de viver a paixão pelo Vasco
+        </h2>
+
+        <p>
+            O Vasco Connect demonstra como o desenvolvimento de software
+            pode criar experiências digitais modernas e aproximar torcedores
+            e clube por meio da tecnologia.
+        </p>
+
+        <small>
+            Projeto fictício desenvolvido para fins acadêmicos.
+        </small>
+
+    </div>
+
+</section>
+
+{% endblock conteudo_principal %}

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block conteudo_principal %}
+
+<section class="pagina-login">
+
+    <div class="caixa-login">
+
+        <div class="titulo-login">
+            <span>ÁREA DO CLIENTE</span>
+
+            <h1>Login</h1>
+
+            <p>
+                Entre na sua conta para continuar.
+            </p>
+        </div>
+
+        <form method="POST" class="formulario-login">
+
+            {% csrf_token %}
+
+            <div class="campo-login">
+                <label for="email">E-mail</label>
+
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="Digite seu e-mail"
+                    required
+                >
+            </div>
+
+            <div class="campo-login">
+                <label for="senha">Senha</label>
+
+                <input
+                    type="password"
+                    id="senha"
+                    name="senha"
+                    placeholder="Digite sua senha"
+                    required
+                >
+            </div>
+
+            <button type="submit">
+                ENTRAR
+            </button>
+
+        </form>
+
+        <div class="links-login">
+
+            <a href="#">
+                Criar uma conta
+            </a>
+
+            <a href="#">
+                Esqueci minha senha
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock conteudo_principal %}

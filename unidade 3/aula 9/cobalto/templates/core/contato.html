@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Contato | {{ empresa.nome }} {{ empresa.sufixo }}{% endblock %}
+
+{% block content %}
+
+<section class="cabecalho-pagina">
+  <div class="container cabecalho-pagina__interno">
+    <h1>Vamos conversar sobre o seu projeto.</h1>
+    <div class="cabecalho-pagina__texto">
+      <p class="lead">
+        Escreva do seu jeito. Não precisa ter escopo nem orçamento definidos: ajudamos a chegar lá.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="secao secao--branca">
+  <div class="container divisao divisao--contato">
+    <aside class="divisao__lateral contato-info">
+      <h2>Outros caminhos</h2>
+      <dl>
+        <dt>E-mail</dt>
+        <dd><a href="mailto:{{ empresa.email }}">{{ empresa.email }}</a></dd>
+        <dt>Telefone</dt>
+        <dd><a href="tel:+551140002026">{{ empresa.telefone }}</a></dd>
+        <dt>Horário</dt>
+        <dd>Segunda a sexta, das 9h às 18h</dd>
+        <dt>Tempo de resposta</dt>
+        <dd>Até 1 dia útil</dd>
+      </dl>
+    </aside>
+
+    <form class="formulario" method="post" novalidate>
+      {% csrf_token %}
+      {% for campo in form %}
+        <div class="campo {% if campo.errors %}campo--erro{% endif %}">
+          <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+          {{ campo }}
+          {% for erro in campo.errors %}
+            <p class="campo__erro">{{ erro }}</p>
+          {% endfor %}
+        </div>
+      {% endfor %}
+      <button class="botao botao--primario" type="submit">Enviar mensagem</button>
+    </form>
+  </div>
+</section>
+
+{% endblock %}

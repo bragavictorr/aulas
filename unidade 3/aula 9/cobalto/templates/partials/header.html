@@ -1,0 +1,24 @@
+{% with atual=request.resolver_match.url_name %}
+<header class="topo">
+  <div class="topo__interno container">
+    <a class="logo" href="{% url 'core:home' %}" aria-label="{{ empresa.nome }} {{ empresa.sufixo }}, página inicial">
+      {% include "partials/logo.html" %}
+      <span class="logo__texto">{{ empresa.nome }}<small>{{ empresa.sufixo }}</small></span>
+    </a>
+
+    <button class="topo__menu-btn" type="button" aria-expanded="false" aria-controls="menu-principal">
+      <span class="sr-only">Abrir menu</span>
+      <span class="topo__menu-icone" aria-hidden="true"></span>
+    </button>
+
+    <nav id="menu-principal" class="menu" aria-label="Principal">
+      <ul>
+        <li><a href="{% url 'core:home' %}" {% if atual == 'home' %}aria-current="page"{% endif %}>Início</a></li>
+        <li><a href="{% url 'core:solucoes' %}" {% if atual == 'solucoes' %}aria-current="page"{% endif %}>Soluções</a></li>
+        <li><a href="{% url 'core:sobre' %}" {% if atual == 'sobre' %}aria-current="page"{% endif %}>Sobre nós</a></li>
+      </ul>
+      <a class="botao botao--primario botao--pequeno" href="{% url 'core:contato' %}">Fale com a gente</a>
+    </nav>
+  </div>
+</header>
+{% endwith %}

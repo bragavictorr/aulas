@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block conteudo_principal %}
+
+<section class="pagina-login">
+
+    <div class="login-container">
+
+        <div class="login-info">
+
+            <span class="home-tag">
+                ÁREA DO TORCEDOR
+            </span>
+
+            <h1>
+                Sua paixão.
+                <br>
+                Seu espaço.
+            </h1>
+
+            <p>
+                Entre na sua conta para acompanhar novidades,
+                resultados e conteúdos exclusivos do Vasco Connect.
+            </p>
+
+        </div>
+
+        <div class="login-card">
+
+            <h2>Login do Torcedor</h2>
+
+            <form method="POST">
+
+                {% csrf_token %}
+
+                <label for="email">
+                    E-mail
+                </label>
+
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="Digite seu e-mail"
+                    required
+                >
+
+                <label for="senha">
+                    Senha
+                </label>
+
+                <input
+                    type="password"
+                    id="senha"
+                    name="senha"
+                    placeholder="Digite sua senha"
+                    required
+                >
+
+                <button type="submit">
+                    Entrar
+                </button>
+
+            </form>
+
+            <p>
+                Ainda não possui uma conta?
+                <a href="#">Cadastre-se</a>
+            </p>
+
+            <p>
+                <a href="#">Esqueci minha senha</a>
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock conteudo_principal %}

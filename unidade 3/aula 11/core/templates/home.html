@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <form action="" method="post">
+      {% csrf_token %}
+      <label for="cep">CEP: </label>
+      <input type="text" name="cep" id="cep" />
+      <button type="submit">BUSCA CEP</button>
+    </form>
+    {% if  resposta %}
+    <p>logradouro: {{resposta.logradouro}}</p>
+    <p>bairro: {{resposta.bairro}}</p>
+    <p>localidade: {{resposta.localidade}}</p>
+    <p>estado: {{resposta.estado}}</p>
+    <p>ddd: {{resposta.ddd}}</p>
+    {% endif %}
+  </body>
+</html>

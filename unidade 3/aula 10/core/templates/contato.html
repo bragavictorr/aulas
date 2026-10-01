@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block conteudo_principal %}
+<p>Me envie seu feedback!</p>
+<form action=""   method="post"   >
+    {% csrf_token %}
+    <input type="text" name="mensagem" id="mensagem"   >
+    <button type="submit">ENVIAR</button>
+
+
+
+</form>
+
+
+
+
+{% endblock conteudo_principal %}

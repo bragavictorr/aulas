@@ -1,0 +1,42 @@
+<footer class="rodape">
+  <div class="container rodape__grade">
+    <div class="rodape__marca">
+      <a class="logo logo--claro" href="{% url 'core:home' %}">
+        {% include "partials/logo.html" %}
+        <span class="logo__texto">{{ empresa.nome }}<small>{{ empresa.sufixo }}</small></span>
+      </a>
+      <p>{{ empresa.slogan }} Sistemas, aplicativos e integrações feitos sob medida, por um time 100% remoto.</p>
+    </div>
+
+    <nav class="rodape__col" aria-label="Soluções">
+      <h2>Soluções</h2>
+      <ul>
+        {% for s in menu_solucoes %}
+          <li><a href="{% url 'core:solucoes' %}#{{ s.slug }}">{{ s.nome }}</a></li>
+        {% endfor %}
+      </ul>
+    </nav>
+
+    <nav class="rodape__col" aria-label="Empresa">
+      <h2>Empresa</h2>
+      <ul>
+        <li><a href="{% url 'core:sobre' %}">Sobre nós</a></li>
+        <li><a href="{% url 'core:solucoes' %}">Como trabalhamos</a></li>
+        <li><a href="{% url 'core:contato' %}">Contato</a></li>
+      </ul>
+    </nav>
+
+    <div class="rodape__col">
+      <h2>Contato</h2>
+      <ul>
+        <li><a href="mailto:{{ empresa.email }}">{{ empresa.email }}</a></li>
+        <li><a href="tel:+551140002026">{{ empresa.telefone }}</a></li>
+        <li>Seg a sex, das 9h às 18h</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="container rodape__base">
+    <p>&copy; {% now "Y" %} {{ empresa.nome }} {{ empresa.sufixo }}. Todos os direitos reservados.</p>
+  </div>
+</footer>

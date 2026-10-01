@@ -1,0 +1,39 @@
+{% load static %}<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ empresa.nome }} {{ empresa.sufixo }}{% endblock %}</title>
+  <meta name="description" content="{% block description %}{{ empresa.nome }} é uma software house brasileira que cria sistemas web, aplicativos e integrações sob medida.{% endblock %}">
+  <meta name="theme-color" content="#2340F5">
+  <script>document.documentElement.classList.add("js")</script>
+
+  <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}">
+  <link rel="preload" href="{% static 'fonts/bricolage-grotesque-latin-wdth-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{% static 'fonts/newsreader-latin-wght-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  <a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
+
+  {% include "partials/header.html" %}
+
+  {% if messages %}
+    <div class="avisos container" role="status">
+      {% for message in messages %}
+        <p class="aviso aviso--{{ message.tags }}">{{ message }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <main id="conteudo">
+    {% block content %}{% endblock %}
+  </main>
+
+  {% include "partials/footer.html" %}
+
+  <script src="{% static 'js/main.js' %}" defer></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

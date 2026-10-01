@@ -1,0 +1,22 @@
+{% extends "base.html" %} {% block conteudo_principal %}
+<p>preencha o formulario abaixo</p>
+<form action="" method="post">
+  {% csrf_token %}
+  <input type="text" name="nome" id="nome" placeholder="seu nome" required />
+  <input
+    type="email"
+    name="email"
+    id="email"
+    placeholder="seu email"
+    required
+  />
+  <select name="interesse" id="interesse">
+    <option value="">selecione o seu produto</option>
+    {% for produto in produtos %}
+    <option value="{{produto.id}}">{{produto.nome}}</option>
+    {% endfor %}
+  </select>
+  <button type="submit">ENVIAR</button>
+</form>
+
+{% endblock conteudo_principal %}

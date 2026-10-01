@@ -1,0 +1,12 @@
+<section class="painel-cta" aria-labelledby="cta-titulo">
+  <div class="painel-cta__interno container">
+    <h2 id="cta-titulo">Tem um problema que o software pode resolver?</h2>
+    <div>
+      <p>Conte em poucas linhas o que você precisa. Um dos sócios responde em até um dia útil, sem compromisso.</p>
+      <div class="painel-cta__acoes">
+        <a class="botao botao--sinal" href="{% url 'core:contato' %}">Conversar sobre o projeto</a>
+        <a class="botao botao--contorno-claro" href="mailto:{{ empresa.email }}">{{ empresa.email }}</a>
+      </div>
+    </div>
+  </div>
+</section>

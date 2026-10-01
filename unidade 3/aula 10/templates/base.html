@@ -1,0 +1,138 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Veldora</title>
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+
+    <!-- CABEÇALHO -->
+    <header class="cabecalho">
+
+        <div class="logo">
+            <a href="{% url 'home' %}">
+                VELDORA
+            </a>
+        </div>
+
+        <nav class="menu">
+            <a href="{% url 'lead' %}">
+                lead
+
+
+            <a href="{% url 'home' %}">
+                Home
+            </a>
+
+            <a href="{% url 'sobre' %}">
+                Sobre
+            </a>
+
+            <a href="#produtos">
+                Produtos
+            </a>
+
+            <a href="{% url 'contato' %}">contato</a>
+
+            <a href="{% url 'login' %}">
+                Login
+            </a>
+
+        </nav>
+
+    </header>
+
+
+    <!-- CONTEÚDO DAS PÁGINAS -->
+    <main>
+
+        {% block conteudo_principal %}
+        {% endblock conteudo_principal %}
+
+    </main>
+
+
+    <!-- RODAPÉ -->
+    <footer class="rodape">
+
+        <div class="rodape-conteudo">
+
+            <div class="rodape-marca">
+
+                <h2>VELDORA</h2>
+
+                <p>
+                    Elegância, qualidade e estilo
+                    em um só lugar.
+                </p>
+
+            </div>
+
+
+            <div class="rodape-links">
+
+                <h3>Navegação</h3>
+
+                <a href="{% url 'home' %}">
+                    Home
+                </a>
+
+                <a href="{% url 'sobre' %}">
+                    Sobre
+                </a>
+
+                <a href="#produtos">
+                    Produtos
+                </a>
+
+                <a href="{% url 'login' %}">
+                    Login
+                </a>
+
+            </div>
+
+
+            <div class="rodape-links">
+
+                <h3>Veldora</h3>
+
+                <a href="#">
+                    Privacidade
+                </a>
+
+                <a href="#">
+                    Termos
+                </a>
+
+                <a href="#">
+                    Atendimento
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="copyright">
+
+            <p>
+                © 2026 Veldora. Todos os direitos reservados.
+            </p>
+
+        </div>
+
+    </footer>
+
+
+    <script src="{% static 'js/script.js' %}"></script>
+
+</body>
+</html>

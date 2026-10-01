@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block conteudo_principal %}
+
+<!-- ============================= -->
+<!-- BANNER PRINCIPAL -->
+<!-- ============================= -->
+
+<section class="hero">
+
+    <div class="hero-conteudo">
+
+        <span>
+            EXCLUSIVIDADE • ESTILO • QUALIDADE
+        </span>
+
+        <h1>
+            Descubra a<br>
+            <strong>Veldora</strong>
+        </h1>
+
+        <p>
+            Produtos selecionados para quem busca
+            estilo, qualidade e uma experiência diferente.
+        </p>
+
+        <a href="#produtos" class="botao">
+            Explorar produtos
+        </a>
+
+    </div>
+
+</section>
+
+
+<!-- ============================= -->
+<!-- PRODUTOS -->
+<!-- ============================= -->
+
+<section class="destaques" id="produtos">
+
+    <div class="titulo-secao">
+
+        <span>
+            NOSSA COLEÇÃO
+        </span>
+
+        <h2>
+            Produtos em destaque
+        </h2>
+
+        <p>
+            Descubra alguns dos produtos selecionados
+            especialmente para você.
+        </p>
+
+    </div>
+
+
+    <!-- CARDS DOS PRODUTOS -->
+
+    <div class="produtos">
+
+        {% for produto in produtos %}
+
+        <div class="produto">
+
+            <!-- IMAGEM -->
+
+            <div class="produto-imagem">
+
+                {% if produto.image_url %}
+
+                    <img
+                        src="{{ produto.image_url }}"
+                        alt="{{ produto.nome }}"
+                    >
+
+                {% else %}
+
+                    <span>
+                        VELDORA
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- INFORMAÇÕES -->
+
+            <div class="produto-info">
+
+                <h3>
+                    {{ produto.nome }}
+                </h3>
+
+                <p>
+                    {{ produto.descricao }}
+                </p>
+
+                <strong>
+                    R$ {{ produto.preco }}
+                </strong>
+
+                <a href="#">
+                    Ver produto
+                </a>
+
+            </div>
+
+        </div>
+
+
+        {% empty %}
+
+        <!-- CASO NÃO TENHA PRODUTOS -->
+
+        <div class="sem-produtos">
+
+            <h3>
+                Nenhum produto disponível
+            </h3>
+
+            <p>
+                Em breve teremos novidades na Veldora.
+            </p>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
+
+<!-- ============================= -->
+<!-- BANNER FINAL -->
+<!-- ============================= -->
+
+<section class="banner">
+
+    <div class="banner-conteudo">
+
+        <span>
+            VELDORA EXPERIENCE
+        </span>
+
+        <h2>
+            Mais do que uma loja.
+            <br>
+            Uma experiência.
+        </h2>
+
+        <p>
+            Criamos a Veldora para transformar
+            sua experiência de compra.
+        </p>
+
+        <a href="{% url 'sobre' %}" class="botao">
+            Conheça a Veldora
+        </a>
+
+    </div>
+
+</section>
+
+
+{% endblock conteudo_principal %}

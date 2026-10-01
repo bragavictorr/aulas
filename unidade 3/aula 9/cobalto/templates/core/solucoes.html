@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Soluções | {{ empresa.nome }} {{ empresa.sufixo }}{% endblock %}
+{% block description %}Sistemas web, aplicativos mobile, integrações, dados e squads dedicados. Conheça as soluções da {{ empresa.nome }}.{% endblock %}
+
+{% block content %}
+
+<section class="cabecalho-pagina">
+  <div class="container cabecalho-pagina__interno">
+    <h1>Soluções para cada fase do seu produto.</h1>
+    <div class="cabecalho-pagina__texto">
+      <p class="lead">
+        Do primeiro protótipo à modernização de um sistema com vinte anos de estrada.
+        Escolha por onde começar ou nos conte o problema e indicamos o caminho.
+      </p>
+      <nav class="atalhos" aria-label="Ir para uma solução">
+        <ul>
+          {% for s in solucoes %}
+            <li><a href="#{{ s.slug }}">{{ s.nome }}</a></li>
+          {% endfor %}
+        </ul>
+      </nav>
+    </div>
+  </div>
+</section>
+
+{% for s in solucoes %}
+<section id="{{ s.slug }}" class="secao secao--solucao {% cycle '' 'secao--branca' %}" aria-labelledby="{{ s.slug }}-titulo">
+  <div class="container divisao">
+    <header class="divisao__lateral">
+      <h2 id="{{ s.slug }}-titulo">{{ s.nome }}</h2>
+      <p>{{ s.resumo }}</p>
+      <a class="link-destaque" href="{% url 'core:contato' %}?assunto=projeto">Pedir uma conversa</a>
+    </header>
+
+    <div class="solucao__corpo">
+      <p class="lead">{{ s.descricao }}</p>
+
+      <h3>O que entregamos</h3>
+      <ul class="checklist">
+        {% for e in s.entregas %}<li>{{ e }}</li>{% endfor %}
+      </ul>
+
+      <h3>Tecnologias que usamos</h3>
+      <ul class="tags" aria-label="Tecnologias">
+        {% for t in s.tecnologias %}<li>{{ t }}</li>{% endfor %}
+      </ul>
+    </div>
+  </div>
+</section>
+{% endfor %}
+
+<section class="secao" aria-labelledby="processo-titulo">
+  <div class="container">
+    <header class="cabecalho-secao">
+      <h2 id="processo-titulo">Em todas as soluções, o mesmo processo</h2>
+      <p>Você acompanha cada etapa e pode ajustar o rumo a qualquer momento.</p>
+    </header>
+    {% include "partials/processo.html" %}
+  </div>
+</section>
+
+{% include "partials/cta.html" %}
+
+{% endblock %}

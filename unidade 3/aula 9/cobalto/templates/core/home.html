@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}{{ empresa.nome }} {{ empresa.sufixo }} | Sistemas, apps e integrações sob medida{% endblock %}
+
+{% block content %}
+
+{# ============ HERO ============ #}
+<section class="hero" aria-labelledby="hero-titulo">
+  <div class="hero__interno container">
+    <div class="hero__texto">
+      <h1 id="hero-titulo">Construímos o software que roda o seu dia a dia.</h1>
+      <p class="hero__lead">
+        Somos uma software house brasileira. Criamos sistemas web, aplicativos e integrações
+        para empresas que precisam de tecnologia que funcione de verdade, do primeiro dia ao quinto ano.
+      </p>
+      <div class="hero__acoes">
+        <a class="botao botao--sinal" href="{% url 'core:contato' %}">Conversar sobre um projeto</a>
+        <a class="botao botao--contorno-claro" href="{% url 'core:solucoes' %}">Ver o que fazemos</a>
+      </div>
+    </div>
+
+    <figure class="hero__planta">
+      <svg class="planta" viewBox="0 0 480 430" role="img" aria-labelledby="planta-titulo planta-desc">
+        <title id="planta-titulo">Esquema de um sistema típico</title>
+        <desc id="planta-desc">Um site e um aplicativo conversam com uma API, que se conecta ao banco de dados e a serviços externos.</desc>
+
+        <g class="planta__linhas" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path pathLength="1" style="--i:0" d="M105 88 V130 H200 V172"/>
+          <path pathLength="1" style="--i:1" d="M375 88 V130 H280 V172"/>
+          <path pathLength="1" style="--i:2" d="M200 240 V286 H105 V330"/>
+          <path pathLength="1" style="--i:3" d="M280 240 V286 H375 V330"/>
+        </g>
+
+        <g class="planta__no" style="--i:0">
+          <rect x="20" y="30" width="170" height="58" rx="14" fill="rgba(255,255,255,.08)" stroke="#fff" stroke-width="1.5"/>
+          <text x="105" y="56" text-anchor="middle" class="t-nome">Site</text>
+          <text x="105" y="75" text-anchor="middle" class="t-nota">seu cliente</text>
+        </g>
+        <g class="planta__no" style="--i:1">
+          <rect x="290" y="30" width="170" height="58" rx="14" fill="rgba(255,255,255,.08)" stroke="#fff" stroke-width="1.5"/>
+          <text x="375" y="56" text-anchor="middle" class="t-nome">Aplicativo</text>
+          <text x="375" y="75" text-anchor="middle" class="t-nota">sua equipe</text>
+        </g>
+        <g class="planta__no" style="--i:2">
+          <rect x="160" y="172" width="160" height="68" rx="16" fill="#FFD23F"/>
+          <text x="240" y="201" text-anchor="middle" class="t-nome t-nome--tinta">API</text>
+          <text x="240" y="222" text-anchor="middle" class="t-nota t-nota--tinta">as regras do negócio</text>
+        </g>
+        <g class="planta__no" style="--i:3">
+          <rect x="20" y="330" width="170" height="58" rx="14" fill="rgba(255,255,255,.08)" stroke="#fff" stroke-width="1.5"/>
+          <text x="105" y="356" text-anchor="middle" class="t-nome">Banco de dados</text>
+          <text x="105" y="375" text-anchor="middle" class="t-nota">o histórico de tudo</text>
+        </g>
+        <g class="planta__no" style="--i:4">
+          <rect x="290" y="330" width="170" height="58" rx="14" fill="rgba(255,255,255,.08)" stroke="#fff" stroke-width="1.5"/>
+          <text x="375" y="356" text-anchor="middle" class="t-nome">Serviços externos</text>
+          <text x="375" y="375" text-anchor="middle" class="t-nota">pagamento, nota fiscal</text>
+        </g>
+      </svg>
+      <figcaption>Um sistema por dentro: cada peça com uma função clara.</figcaption>
+    </figure>
+  </div>
+
+  <dl class="hero__fatos container">
+    <div><dt>No mercado desde</dt><dd>{{ empresa.fundacao }}</dd></div>
+    <div><dt>Pessoas no time</dt><dd>{{ empresa.pessoas }}</dd></div>
+    <div><dt>Projetos entregues</dt><dd>{{ empresa.projetos }}+</dd></div>
+  </dl>
+</section>
+
+{# ============ SOLUÇÕES ============ #}
+<section class="secao secao--solucoes" aria-labelledby="solucoes-titulo">
+  <div class="container divisao">
+    <header class="divisao__lateral">
+      <h2 id="solucoes-titulo">O que a gente constrói</h2>
+      <p>
+        Seis frentes de trabalho que se combinam. Muitos clientes começam por uma
+        e acabam usando três.
+      </p>
+      <a class="link-destaque" href="{% url 'core:solucoes' %}">Ver todas as soluções</a>
+    </header>
+
+    <ul class="lista-solucoes">
+      {% for s in solucoes %}
+        <li>
+          <a class="linha-solucao" href="{% url 'core:solucoes' %}#{{ s.slug }}">
+            <h3>{{ s.nome }}</h3>
+            <p>{{ s.resumo }}</p>
+            <ul class="tags" aria-label="Tecnologias">
+              {% for t in s.tecnologias %}<li>{{ t }}</li>{% endfor %}
+            </ul>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+
+{# ============ PROCESSO ============ #}
+<section class="secao secao--branca" aria-labelledby="processo-titulo">
+  <div class="container">
+    <header class="cabecalho-secao">
+      <h2 id="processo-titulo">Como um projeto acontece</h2>
+      <p>Quatro etapas, com entregas visíveis em cada uma. Você sabe onde estamos e o que vem a seguir.</p>
+    </header>
+    {% include "partials/processo.html" %}
+  </div>
+</section>
+
+{# ============ CASES ============ #}
+<section class="secao" aria-labelledby="cases-titulo">
+  <div class="container">
+    <header class="cabecalho-secao">
+      <h2 id="cases-titulo">Projetos que entregamos</h2>
+      <p>Três exemplos de problemas reais que viraram software em produção.</p>
+    </header>
+
+    <div class="cases">
+      {% for c in cases %}
+        <article class="case case--{{ c.cor }}">
+          <p class="case__setor">{{ c.cliente }}, {{ c.setor|lower }}</p>
+          <div class="case__resultado">
+            <strong>{{ c.resultado }}</strong>
+            <span>{{ c.resultado_texto }}</span>
+          </div>
+          <div class="case__corpo">
+            <h3>{{ c.titulo }}</h3>
+            <p>{{ c.resumo }}</p>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% include "partials/cta.html" %}
+
+{% endblock %}

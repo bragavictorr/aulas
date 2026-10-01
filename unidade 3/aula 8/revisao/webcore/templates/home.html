@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Início | Vasco Connect{% endblock %}
+
+{% block conteudo_principal %}
+
+<section class="pagina-home">
+
+    <div class="home-conteudo">
+
+        <span class="home-tag">TECNOLOGIA E INOVAÇÃO</span>
+
+        <h1>
+            O futuro do Vasco começa aqui.
+        </h1>
+
+        <p>
+            Uma experiência digital criada para conectar torcedores,
+            informações e tecnologia em um só lugar.
+        </p>
+
+        <div class="home-botoes">
+            <a href="{% url 'solucoes' %}" class="botao">
+                Conheça nossas soluções
+            </a>
+
+            <a href="{% url 'sobre' %}" class="botao botao-secundario">
+                Sobre o projeto
+            </a>
+        </div>
+
+    </div>
+
+    <div class="home-imagem">
+        <img src="{% static 'img/vasco.png' %}" alt="Vasco da Gama">
+    </div>
+
+</section>
+
+{% endblock %}

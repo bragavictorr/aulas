@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Sobre nós | {{ empresa.nome }} {{ empresa.sufixo }}{% endblock %}
+{% block description %}Conheça a história, os valores e o time da {{ empresa.nome }}, software house brasileira fundada em {{ empresa.fundacao }}.{% endblock %}
+
+{% block content %}
+
+<section class="cabecalho-pagina">
+  <div class="container cabecalho-pagina__interno">
+    <h1>Um time pequeno para problemas que não são pequenos.</h1>
+    <div class="cabecalho-pagina__texto">
+      <p class="lead">
+        A {{ empresa.nome }} nasceu em {{ empresa.fundacao }} com uma ideia simples: empresas merecem
+        software feito com o mesmo cuidado que elas dedicam ao próprio negócio.
+      </p>
+      <p>
+        Hoje somos {{ empresa.pessoas }} pessoas, espalhadas pelo Brasil, entre desenvolvedores, designers,
+        analistas de qualidade e gerentes de projeto. Trabalhamos com poucos clientes por vez, de propósito,
+        para que cada projeto tenha atenção de quem conhece o assunto.
+      </p>
+    </div>
+  </div>
+</section>
+
+{# ============ HISTÓRIA ============ #}
+<section class="secao secao--branca" aria-labelledby="historia-titulo">
+  <div class="container divisao">
+    <header class="divisao__lateral">
+      <h2 id="historia-titulo">Nossa história</h2>
+      <p>De uma sala emprestada a um time remoto com clientes em todo o país.</p>
+    </header>
+    <ol class="linha-tempo">
+      {% for m in marcos %}
+        <li>
+          <span class="linha-tempo__ano">{{ m.ano }}</span>
+          <p>{{ m.texto }}</p>
+        </li>
+      {% endfor %}
+    </ol>
+  </div>
+</section>
+
+{# ============ VALORES ============ #}
+<section class="secao" aria-labelledby="valores-titulo">
+  <div class="container">
+    <header class="cabecalho-secao">
+      <h2 id="valores-titulo">Como a gente trabalha</h2>
+      <p>Quatro combinados que valem para todo projeto, grande ou pequeno.</p>
+    </header>
+    <div class="valores">
+      {% for v in valores %}
+        <div class="valor">
+          <h3>{{ v.titulo }}</h3>
+          <p>{{ v.texto }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{# ============ TIME ============ #}
+<section class="secao secao--branca" aria-labelledby="time-titulo">
+  <div class="container">
+    <header class="cabecalho-secao">
+      <h2 id="time-titulo">Quem responde por você</h2>
+      <p>A liderança participa dos projetos. Não some depois da venda.</p>
+    </header>
+    <ul class="time">
+      {% for p in time %}
+        <li class="pessoa pessoa--{{ forloop.counter }}">
+          <span class="pessoa__avatar" aria-hidden="true">{{ p.iniciais }}</span>
+          <h3>{{ p.nome }}</h3>
+          <p>{{ p.cargo }}</p>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+
+{% include "partials/cta.html" %}
+
+{% endblock %}

@@ -1,0 +1,10 @@
+<ol class="processo">
+  {% for etapa in processo %}
+    <li class="processo__etapa">
+      <span class="processo__num" aria-hidden="true">{{ forloop.counter }}</span>
+      <h3>{{ etapa.titulo }}</h3>
+      <p>{{ etapa.texto }}</p>
+      <p class="processo__prazo">{{ etapa.prazo }}</p>
+    </li>
+  {% endfor %}
+</ol>
