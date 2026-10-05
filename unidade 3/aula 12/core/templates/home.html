@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Painel Comercial</title>
+  </head>
+  <body>
+    <header><a href="">logo</a></header>
+
+    <main>
+      <section>
+        <div>
+          <h2>TOTAL DE CLIENTES</h2>
+          <p>{{total_cliente}}</p>
+        </div>
+        <div>
+          <h2>total negociaçoes</h2>
+          <p>{{total_negociacao}}</p>
+        </div>
+        <div>
+            <h2>total fechados</h2>
+          <p>{{fechado}}</p>
+          
+        </div>
+        <div>
+          <h2>VALOR TOTAL NEGOCIADO</h2>
+          <p>{{valor_total}}</p>
+        </div>
+      </section>
+      <section>
+        <input
+          type="search"
+          name="busca"
+          id="busca"
+          placeholder="busuqe CLIENTES"
+        />
+        <button>Novo cliente</button>
+      </section>
+      <section>
+        <table>
+          <thead>
+            <th>CLiente</th>
+            <th>CONTATo</th>
+            <th>VALOR PROPOSTA</th>
+            <th>STATUS</th>
+            <th>DATA CADASTRO</th>
+            <th>AÇOES</th>
+          </thead>
+          <tbody>
+            {% for cliente in lista_cliente %}
+            <tr>
+              <td>{{cliente.nome}}</td>
+              <td>{{cliente.email}}</td>
+              <td>{{cliente.telefone}}</td>
+              <td>{{cliente.nome}}</td>
+              <td>{{cliente.valor_proposta}}</td>
+              <td>{{cliente.data_cadastro}}</td>
+              <td>{{cliente.status}}</td>
+            </tr>
+
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+    </main>
+    <footer></footer>
+  </body>
+</html>
