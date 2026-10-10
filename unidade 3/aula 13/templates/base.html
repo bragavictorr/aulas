@@ -1,0 +1,67 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArtFlow | Motion Design</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+
+    <main>
+        {% block conteudo_principal %}
+        
+        <!-- Seção Inicial em Tela Cheia com Motion Design de Fundo -->
+        <section class="hero-fullscreen-motion">
+            
+            <!-- GIF animado de fundo rodando em loop -->
+            <img src="{% static 'videos/avedeto-night.gif' %}" alt="Motion Background" class="background-motion-video">
+
+            <!-- Camada escura translúcida -->
+            <div class="video-overlay"></div>
+
+            <!-- Cabeçalho simples com a Logo -->
+            <header class="hero-navbar">
+                <div class="logo">
+                    <h1>ArtFlow</h1>
+                    <span>| Motion</span>
+                </div>
+            </header>
+
+            <!-- Conteúdo Central -->
+            <div class="hero-main-content">
+                <h2>
+                    <span class="glow-word w1">O</span> 
+                    <span class="glow-word w2">ponto</span> 
+                    <span class="glow-word w3">de</span> 
+                    <span class="glow-word w4">encontro</span> 
+                    <span class="glow-word w5">definitivo</span> 
+                    <span class="glow-word w6">para</span> 
+                    <span class="highlight glow-word w7">Motion</span> 
+                    <span class="highlight glow-word w8">Designers</span> 
+                    <span class="glow-word w9">e</span> 
+                    <span class="glow-word w10">Clientes</span>
+                </h2>
+                
+                <p>
+                    Uma plataforma exclusiva para expor portfólios audiovisuais, descobrir animações incríveis 
+                    e conectar criativos diretamente a quem quer contratar talentos para o próximo projeto.
+                </p>
+                
+                <!-- Botão de Acesso -->
+                <div class="hero-cta-buttons">
+                    <a href="{% url 'login' %}" class="btn-main-access">Faça seu Login ou Cadastre-se</a>
+                </div>
+            </div>
+
+        </section>
+
+        {% endblock conteudo_principal %}
+    </main>
+
+</body>
+
+</html>

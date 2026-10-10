@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block conteudo_principal %}
+<!-- GIF de fundo animado para manter a consistência -->
+<img src="{% static 'videos/avedeto-night.gif' %}" alt="Motion Background" class="background-motion-video">
+<div class="video-overlay"></div>
+
+<div class="auth-container">
+    <div class="auth-card">
+        <h2>LOGIN</h2>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn-main-access">Entrar</button>
+        </form>
+        <p class="auth-redirect">Ainda não tens conta? <a href="{% url 'cadastro' %}">Cadastra-te aqui</a></p>
+    </div>
+</div>
+{% endblock conteudo_principal %}

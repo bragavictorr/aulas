@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block conteudo_principal %}
+<!-- Barra de Navegação Superior (Pós-Login) -->
+<header class="navbar-logged">
+    <div class="logo">
+        <h1>ArtFlow</h1>
+        <span>| Motion</span>
+    </div>
+    
+    <div class="search-bar">
+        <input type="text" placeholder="Busque por motion graphics, animações 3D, VFX...">
+    </div>
+
+    <nav class="nav-links">
+        <a href="#" class="active">Explorar</a>
+        <a href="#">Mensagens</a>
+        <a href="#" class="profile-link">Meu Perfil</a>
+    </nav>
+</header>
+
+<!-- Filtros de Categorias -->
+<section class="filters">
+    <button class="filter-btn active">Todos</button>
+    <button class="filter-btn">Animação 3D</button>
+    <button class="filter-btn">Motion Graphics 2D</button>
+    <button class="filter-btn">VFX</button>
+    <button class="filter-btn">TV & Cinema</button>
+</section>
+
+<!-- Feed de Artes Aleatórias (Estilo Behance) -->
+<section class="projects-grid">
+    <!-- Card de Exemplo 1 -->
+    <div class="project-card">
+        <div class="thumbnail-container">
+            <div class="play-badge">▶</div>
+            <img src="{% static 'images/projeto1.jpg' %}" alt="Arte Motion">
+        </div>
+        <div class="project-info">
+            <h3>Animação de Personagem 3D</h3>
+            <p>Por <span>@MotionBruno</span></p>
+        </div>
+    </div>
+
+    <!-- Card de Exemplo 2 -->
+    <div class="project-card">
+        <div class="thumbnail-container">
+            <div class="play-badge">▶</div>
+            <img src="{% static 'images/projeto2.jpg' %}" alt="Arte Motion">
+        </div>
+        <div class="project-info">
+            <h3>Gráficos em Loop</h3>
+            <p>Por <span>@AnaVFX</span></p>
+        </div>
+    </div>
+</section>
+{% endblock conteudo_principal %}
