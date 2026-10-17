@@ -1,0 +1,861 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ project.title }} por @{{ project.author.username }} | ArtFlow{% endblock %}
+
+{% block extra_head %}
+<!-- Meta tags Open Graph para compartilhamento rico no WhatsApp, Discord, X e LinkedIn -->
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="ArtFlow Motion">
+<meta property="og:title" content="{{ project.title }} por @{{ project.author.username }}">
+<meta property="og:description" content="{{ project.description|truncatewords:25|default:'Confira esta incrível produção audiovisual no ArtFlow.' }}">
+{% if project.thumbnail %}
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ project.thumbnail.url }}">
+{% else %}
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'images/artflow-logo.png' %}">
+{% endif %}
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ project.title }} por @{{ project.author.username }}">
+<meta name="twitter:description" content="{{ project.description|truncatewords:25|default:'Confira esta incrível produção audiovisual no ArtFlow.' }}">
+{% if project.thumbnail %}
+<meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{{ project.thumbnail.url }}">
+{% endif %}
+{% endblock extra_head %}
+
+{% block conteudo_principal %}
+<!-- Fundo Animado -->
+<img src="{% static 'videos/avedeto-night.gif' %}" alt="Motion Background" class="background-motion-video">
+<div class="video-overlay"></div>
+
+<!-- Barra de Navegação Superior (Pós-Login) -->
+<header class="navbar-logged">
+    <div class="navbar-left">
+        <a href="{% url 'home' %}" class="logo-link">
+            <img src="{% static 'images/artflow-logo.png' %}" alt="ArtFlow Logo" class="brand-logo-img">
+            <h1>ArtFlow</h1>
+            <span class="logo-tag">| Motion</span>
+        </a>
+    </div>
+    
+    <div class="search-bar">
+        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" placeholder="Buscar no ArtFlow..." onclick="window.location.href='{% url 'home' %}'">
+    </div>
+
+    <nav class="nav-links">
+        <a href="{% url 'home' %}" class="nav-item">
+            <svg class="nav-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                <polyline points="2 17 12 22 22 17"></polyline>
+                <polyline points="2 12 12 17 22 12"></polyline>
+            </svg>
+            <span>Explorar</span>
+        </a>
+
+        <!-- Botão de Alternar Modo Claro/Escuro -->
+        <button class="btn-theme-toggle nav-item-theme" onclick="toggleTheme()" title="Alternar Modo Claro / Modo Escuro">
+            <span class="theme-icon icon-sun">☀️</span>
+            <span class="theme-icon icon-moon">🌙</span>
+        </button>
+
+        <a href="{% url 'profile' request.user.username %}" class="user-profile-badge-link" title="Meu Perfil">
+            <div class="user-profile-badge">
+                {% if request.user.profile.avatar %}
+                    <img src="{{ request.user.profile.avatar.url }}" alt="{{ request.user.username }}" class="user-avatar-img">
+                {% else %}
+                    <div class="user-avatar">{{ request.user.username|slice:":1"|upper }}</div>
+                {% endif %}
+                <div class="user-info">
+                    <span class="user-role">Meu Perfil</span>
+                    <span class="user-name">{{ request.user.username }}</span>
+                </div>
+            </div>
+        </a>
+
+        <a href="{% url 'logout' %}" class="btn-logout" title="Encerrar sessão">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            <span>Sair</span>
+        </a>
+    </nav>
+</header>
+
+<div class="project-detail-container">
+
+    <!-- Mensagens de Alerta / Sucesso -->
+    {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+                <div class="alert-box alert-{{ message.tags }}">
+                    <span class="alert-icon">
+                        {% if message.tags == 'success' %}
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        {% elif message.tags == 'error' %}
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        {% else %}
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                        {% endif %}
+                    </span>
+                    <span>{{ message }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Botão de Voltar ao Feed -->
+    <div class="detail-navigation-bar">
+        <a href="{% url 'home' %}" class="btn-back-feed">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            <span>Voltar ao Feed</span>
+        </a>
+        <span class="detail-breadcrumb">{{ project.get_category_display }} / {{ project.title }}</span>
+    </div>
+
+    <!-- ÁREA PRINCIPAL: EXIBIÇÃO DA ARTE / VÍDEO -->
+    <div class="artwork-cinema-wrapper">
+        <div class="artwork-display-frame {{ project.preview_style }}">
+            <div class="scanlines"></div>
+            
+            {% if project.video_demo %}
+                {% if project.is_video_gif %}
+                    <!-- Animação em GIF de Alta Definição -->
+                    <img src="{{ project.video_demo.url }}" alt="{{ project.title }}" class="artwork-image-full">
+                {% else %}
+                    <!-- Vídeo Motion Design com Controles e Loop -->
+                    <video class="artwork-video-player" src="{{ project.video_demo.url }}" {% if project.thumbnail %}poster="{{ project.thumbnail.url }}"{% endif %} controls autoplay loop muted playsinline>
+                        Seu navegador não suporta a tag de vídeo.
+                    </video>
+                {% endif %}
+            {% elif project.thumbnail %}
+                <!-- Thumbnail em Alta Definição -->
+                <img src="{{ project.thumbnail.url }}" alt="{{ project.title }}" class="artwork-image-full">
+            {% else %}
+                <!-- Render de Estilo Procedural Retro-Futurista -->
+                <div class="artwork-procedural-art">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="margin-bottom: 12px;"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line></svg>
+                    <h3>{{ project.title }}</h3>
+                    <span class="procedural-tag">{{ project.get_category_display }} &bull; {{ project.duration }}</span>
+                </div>
+            {% endif %}
+
+            <!-- Badges Flutuantes -->
+            <div class="artwork-floating-badges">
+                <span class="badge-tag tag-{{ project.category }}">{{ project.get_category_display }}</span>
+                <span class="duration-badge">{{ project.duration }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- GRID INFERIOR: DETALHES, AUTOR, COMPRA E COMENTÁRIOS -->
+    <div class="detail-content-grid">
+        
+        <!-- COLUNA ESQUERDA: INFOS DA ARTE E COMENTÁRIOS -->
+        <div class="detail-left-col">
+            
+            <!-- Título e Ações Rápidas -->
+            <div class="artwork-main-card">
+                <div class="artwork-title-header">
+                    <h2>{{ project.title }}</h2>
+                    <span class="artwork-pub-date">Publicado em {{ project.created_at|date:"d de F de Y" }}</span>
+                </div>
+
+                <!-- Barra de Interações (Curtir, Views, Compartilhar, Excluir) -->
+                <div class="artwork-actions-bar">
+                    <form method="POST" action="{% url 'like_project' project.id %}" class="like-form" id="likeForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <button type="submit" class="btn-detail-like {% if user_has_liked %}liked{% endif %}" id="btnLike">
+                            <svg class="heart-svg" width="16" height="16" viewBox="0 0 24 24" fill="{% if user_has_liked %}#f43f5e{% else %}none{% endif %}" stroke="{% if user_has_liked %}#f43f5e{% else %}currentColor{% endif %}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                            </svg>
+                            <span id="likeCountDisplay">{{ project.total_likes }}</span>
+                            <span class="like-label">{% if user_has_liked %}Curtido{% else %}Curtir{% endif %}</span>
+                        </button>
+                    </form>
+
+                    <!-- Botão de Salvar Arte (Bookmarks) -->
+                    <form method="POST" action="{% url 'save_project' project.id %}" class="save-form" id="saveForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <button type="submit" class="btn-detail-save {% if user_has_saved %}saved{% endif %}" id="btnSave" title="Salvar para ver depois no seu perfil">
+                            <svg class="bookmark-svg" width="16" height="16" viewBox="0 0 24 24" fill="{% if user_has_saved %}#38bdf8{% else %}none{% endif %}" stroke="{% if user_has_saved %}#38bdf8{% else %}currentColor{% endif %}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                            </svg>
+                            <span id="saveCountDisplay">{{ project.total_saves }}</span>
+                            <span class="save-label" id="saveLabelText">{% if user_has_saved %}Salvo{% else %}Salvar{% endif %}</span>
+                        </button>
+                    </form>
+
+                    <!-- Painel de Compartilhamento Social (Viral Loop) -->
+                    <div class="social-share-panel">
+                        <span class="share-panel-label">Compartilhar:</span>
+                        
+                        <!-- WhatsApp -->
+                        <a href="https://api.whatsapp.com/send?text={{ project.title|urlencode }}%20por%20@{{ project.author.username }}%20no%20ArtFlow%3A%20{{ request.build_absolute_uri|urlencode }}" target="_blank" rel="noopener noreferrer" class="btn-social-chip chip-whatsapp" title="Enviar no WhatsApp">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+                            <span>WhatsApp</span>
+                        </a>
+
+                        <!-- X (Twitter) -->
+                        <a href="https://twitter.com/intent/tweet?text={{ project.title|urlencode }}%20por%20@{{ project.author.username }}&url={{ request.build_absolute_uri|urlencode }}" target="_blank" rel="noopener noreferrer" class="btn-social-chip chip-twitter" title="Compartilhar no X / Twitter">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                            <span>X</span>
+                        </a>
+
+                        <!-- LinkedIn -->
+                        <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri|urlencode }}" target="_blank" rel="noopener noreferrer" class="btn-social-chip chip-linkedin" title="Compartilhar no LinkedIn">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                            <span>LinkedIn</span>
+                        </a>
+
+                        <!-- Copiar Link -->
+                        <button class="btn-social-chip chip-copylink" onclick="copyProjectLink()" title="Copiar link direto para compartilhar">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                            <span id="shareBtnText">Copiar Link</span>
+                        </button>
+                    </div>
+
+                    <!-- Se for o dono do projeto: BOTÃO DE RETIRAR / EXCLUIR PROJETO -->
+                    {% if is_owner %}
+                        <button class="btn-delete-project" onclick="openDeleteModal()" title="Excluir este projeto da plataforma">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                            <span>Retirar / Excluir Projeto</span>
+                        </button>
+                    {% endif %}
+                </div>
+
+                <!-- Descrição da Obra -->
+                <div class="artwork-description-box">
+                    <h4>Sobre esta Criação</h4>
+                    <p>{{ project.description|default:"O criador compartilhou esta produção audiovisual com a comunidade do ArtFlow." }}</p>
+                </div>
+            </div>
+
+            <!-- SEÇÃO DE COMENTÁRIOS -->
+            <div class="comments-section-card">
+                <div class="comments-header">
+                    <h3>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        Comentários da Comunidade ({{ comments.count }})
+                    </h3>
+                </div>
+
+                <!-- Formulário de Novo Comentário -->
+                <form method="POST" action="{% url 'add_comment' project.id %}" class="comment-submit-form">
+                    {% csrf_token %}
+                    <div class="comment-input-row">
+                        {% if request.user.profile.avatar %}
+                            <img src="{{ request.user.profile.avatar.url }}" alt="{{ request.user.username }}" class="user-avatar-comment">
+                        {% else %}
+                            <div class="avatar-small comment-avatar-placeholder">{{ request.user.username|slice:":1"|upper }}</div>
+                        {% endif %}
+
+                        <div class="comment-input-wrapper">
+                            {{ comment_form.text }}
+                            <button type="submit" class="btn-send-comment">
+                                <span>Enviar</span>
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Lista de Comentários Postados -->
+                <div class="comments-list">
+                    {% for comment in comments %}
+                        <div class="comment-item">
+                            <a href="{% url 'profile' comment.author.username %}" class="comment-author-avatar-link">
+                                {% if comment.author.profile.avatar %}
+                                    <img src="{{ comment.author.profile.avatar.url }}" alt="{{ comment.author.username }}" class="comment-author-avatar">
+                                {% else %}
+                                    <div class="comment-avatar-ph">{{ comment.author.username|slice:":1"|upper }}</div>
+                                {% endif %}
+                            </a>
+                            <div class="comment-item-content">
+                                <div class="comment-meta-row">
+                                    <a href="{% url 'profile' comment.author.username %}" class="comment-author-name">
+                                        @{{ comment.author.username }}
+                                    </a>
+                                    {% if comment.author == project.author %}
+                                        <span class="badge-creator-tag">Criador da Arte</span>
+                                    {% endif %}
+                                    <span class="comment-time">{{ comment.created_at|timesince }} atrás</span>
+
+                                    {% if is_owner or request.user == comment.author %}
+                                        <form method="POST" action="{% url 'delete_comment' comment.id %}" class="delete-comment-form" onsubmit="return confirm('Deseja realmente excluir este comentário?');">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn-delete-comment" title="Excluir comentário">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                </svg>
+                                                <span>Excluir</span>
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                                <p class="comment-text-body">{{ comment.text }}</p>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="empty-comments">
+                            <span>Seja o primeiro a comentar sobre esta arte!</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+
+        <!-- COLUNA DIREITA: CARD DO AUTOR E COMPRA DO MODELO 3D -->
+        <div class="detail-right-col">
+            
+            <!-- CARD DO CRIADOR -->
+            <div class="creator-profile-card">
+                <div class="creator-header">
+                    <a href="{% url 'profile' project.author.username %}" class="creator-avatar-link">
+                        {% if project.author.profile.avatar %}
+                            <img src="{{ project.author.profile.avatar.url }}" alt="{{ project.author.username }}" class="creator-avatar-large">
+                        {% else %}
+                            <div class="creator-avatar-large-ph">{{ project.author.username|slice:":2"|upper }}</div>
+                        {% endif %}
+                    </a>
+                    <div class="creator-names">
+                        <h3>{{ project.author.first_name|default:project.author.username }}</h3>
+                        <a href="{% url 'profile' project.author.username %}" class="creator-handle">@{{ project.author.username }}</a>
+                        <span class="creator-spec">{{ project.author.profile.especialidade|default:"Motion Designer" }}</span>
+                    </div>
+                </div>
+
+                <div class="creator-actions">
+                    <a href="{% url 'profile' project.author.username %}" class="btn-view-portfolio">
+                        Ver Portfólio Completo
+                    </a>
+                    {% if not is_owner %}
+                        <button class="btn-propose-collab" onclick="openCollabModal('@{{ project.author.username }}', '{{ project.author.username }}', '{{ project.id }}', '{{ project.title }}')" style="width: 100%; justify-content: center; margin-top: 8px;">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                            <span>Propor Parceria Criativa</span>
+                        </button>
+                        {% if project.author.profile.available_for_hire %}
+                            <button class="btn-hire-creator-direct" onclick="openHireModal('@{{ project.author.username }}', '{{ project.author.username }}', '{{ project.id }}', '{{ project.title }}')">
+                                Contratar Artista
+                            </button>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- CARD DE COMPRA DO MOTION DESIGN / MODELO 3D / ASSET -->
+            <div class="buy-model-card" id="buyAreaCard" data-base-price="{{ project.price|stringformat:'.2f' }}">
+                <div class="buy-card-badge">MOTION DESIGN & ASSETS</div>
+                
+                <div class="buy-price-row">
+                    <span class="buy-currency">R$</span>
+                    <span class="buy-amount" id="displayBuyAmount">{{ project.price }}</span>
+                    <span class="buy-license-tag" id="displayLicenseTag">Licença Comercial</span>
+                </div>
+
+                {% if is_owner %}
+                    <!-- PAINEL EXCLUSIVO DO AUTOR PARA ESCOLHER / MUDAR O PREÇO DA ARTE -->
+                    <form method="POST" action="{% url 'update_project_price' project.id %}" class="owner-price-editor">
+                        {% csrf_token %}
+                        <div class="price-editor-header">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                            <span>Definir Preço da Arte</span>
+                        </div>
+                        
+                        <div class="price-quick-chips">
+                            <button type="button" class="price-chip-btn" onclick="setOwnerQuickPrice('29.90')">R$ 29,90</button>
+                            <button type="button" class="price-chip-btn" onclick="setOwnerQuickPrice('49.90')">R$ 49,90</button>
+                            <button type="button" class="price-chip-btn" onclick="setOwnerQuickPrice('99.90')">R$ 99,90</button>
+                            <button type="button" class="price-chip-btn" onclick="setOwnerQuickPrice('149.90')">R$ 149,90</button>
+                            <button type="button" class="price-chip-btn" onclick="setOwnerQuickPrice('249.90')">R$ 249,90</button>
+                            <button type="button" class="price-chip-btn" onclick="setOwnerQuickPrice('399.90')">R$ 399,90</button>
+                        </div>
+
+                        <div class="price-input-box">
+                            <span class="currency-prefix">R$</span>
+                            <input type="number" step="0.01" min="0" name="new_price" id="ownerPriceInput" value="{{ project.price|stringformat:'.2f' }}" class="price-number-field" placeholder="0,00" oninput="previewOwnerPrice(this.value)">
+                        </div>
+
+                        <button type="submit" class="btn-save-price">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>Salvar Novo Preço</span>
+                        </button>
+                        <small class="price-editor-hint">Apenas você vê este painel. O cliente verá o preço salvo acima.</small>
+                    </form>
+                {% endif %}
+
+                <p class="buy-includes-title">O que está incluído no download:</p>
+                <ul class="buy-features-list">
+                    <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Arquivos de projeto e render (.mp4, .aep, .blend)</li>
+                    <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Shaders, comps e texturas em alta resolução 4K</li>
+                    <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Cena completa configurada com iluminação</li>
+                    <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Licença comercial completa sem royalties</li>
+                </ul>
+
+                {% if is_owner %}
+                    <div class="buy-owner-notice">
+                        <span>Você é o criador desta obra — os clientes verão apenas o preço definido por você.</span>
+                    </div>
+                {% elif user_has_purchased %}
+                    <div class="buy-purchased-box">
+                        <span class="purchased-check">Projeto Adquirido!</span>
+                        <p>Você tem acesso irrestrito aos arquivos desta animação.</p>
+                        <button class="btn-download-assets" onclick="alert('Download dos arquivos de Motion Design iniciado!')">
+                            Baixar Arquivos do Projeto (.ZIP)
+                        </button>
+                    </div>
+                {% else %}
+                    <button class="btn-buy-model-cta" onclick="openBuyModal()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                        <span>Comprar Motion / Modelo da Arte</span>
+                    </button>
+                {% endif %}
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ==========================================================================
+     MODAL DE COMPRA DO MOTION DESIGN / MODELO 3D / ASSET
+     ========================================================================== -->
+<div id="buyModelModal" class="hire-modal-backdrop" style="display: none;">
+    <div class="hire-modal-card">
+        <button class="modal-close-btn" onclick="closeBuyModal()">&times;</button>
+        
+        <div class="modal-header">
+            <span class="modal-badge">CHECKOUT SEGURO</span>
+            <h3>Adquirir Motion Design & Assets</h3>
+            <p>Confirme a compra do pacote de arquivos de <strong>{{ project.title }}</strong>.</p>
+        </div>
+
+        <form method="POST" action="{% url 'buy_project_model' project.id %}">
+            {% csrf_token %}
+            <div class="buy-modal-summary">
+                <div class="summary-item">
+                    <span>Projeto:</span>
+                    <strong>{{ project.title }}</strong>
+                </div>
+                <div class="summary-item">
+                    <span>Criador:</span>
+                    <strong>@{{ project.author.username }}</strong>
+                </div>
+                <div class="summary-item total-item">
+                    <span>Valor Total:</span>
+                    <strong class="total-price">R$ {{ project.price }}</strong>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-modal-cancel" onclick="closeBuyModal()">Cancelar</button>
+                <button type="submit" class="btn-modal-submit">
+                    Confirmar Compra e Liberar Download
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ==========================================================================
+     MODAL DE CONFIRMAÇÃO DE EXCLUSÃO DO PROJETO
+     ========================================================================== -->
+{% if is_owner %}
+<div id="deleteModal" class="hire-modal-backdrop" style="display: none;">
+    <div class="hire-modal-card">
+        <button class="modal-close-btn" onclick="closeDeleteModal()">&times;</button>
+        
+        <div class="modal-header">
+            <span class="modal-badge" style="border-color: #ff4757; color: #ff4757; background: rgba(255, 71, 87, 0.1);">CONFIRMAÇÃO</span>
+            <h3>Remover Projeto?</h3>
+            <p>Tem certeza de que deseja retirar <strong>"{{ project.title }}"</strong> do ArtFlow? Esta ação é irreversível e excluirá o projeto e todos os seus comentários.</p>
+        </div>
+
+        <form method="POST" action="{% url 'delete_project' project.id %}">
+            {% csrf_token %}
+            <div class="modal-actions">
+                <button type="button" class="btn-modal-cancel" onclick="closeDeleteModal()">Cancelar</button>
+                <button type="submit" class="btn-modal-submit" style="background: #ff4757; color: #ffffff;">
+                    Sim, Retirar Projeto
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<!-- ==========================================================================
+     MODAL DE CONTRATAÇÃO (CASO O VISITANTE QUEIRA CONTRATAR)
+     ========================================================================== -->
+<div id="hireModal" class="hire-modal-backdrop" style="display: none;">
+    <div class="hire-modal-card">
+        <button class="modal-close-btn" onclick="closeHireModal()">&times;</button>
+        
+        <div class="modal-header">
+            <span class="modal-badge">SOLICITAR CONTRATAÇÃO</span>
+            <h3 id="hireModalCreatorTitle">Contratar @{{ project.author.username }}</h3>
+            <p>Envie sua proposta com base no estilo desta arte.</p>
+        </div>
+
+        <form method="POST" action="{% url 'hire_creator' project.author.username %}">
+            {% csrf_token %}
+            <input type="hidden" name="project_id" value="{{ project.id }}">
+            <input type="hidden" name="next" value="{{ request.path }}">
+
+            <div class="form-group">
+                <label for="id_client_name">Seu Nome ou Empresa *</label>
+                {{ hiring_form.client_name }}
+            </div>
+
+            <div class="form-group">
+                <label for="id_client_email">Seu E-mail de Retorno *</label>
+                {{ hiring_form.client_email }}
+            </div>
+
+            <div class="form-grid-two">
+                <div class="form-group">
+                    <label for="id_project_title">Título do Projeto *</label>
+                    <input type="text" name="project_title" class="form-control-art" value="Interesse no Projeto: {{ project.title }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="id_budget">Orçamento Estimado</label>
+                    {{ hiring_form.budget }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="id_message">Detalhes do Projeto / Prazos / Referências *</label>
+                {{ hiring_form.message }}
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-modal-cancel" onclick="closeHireModal()">Cancelar</button>
+                <button type="submit" class="btn-modal-submit">Enviar Solicitação</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ==========================================================================
+     MODAL DE PROPOR PARCERIA / PROJETO CONJUNTO
+     ========================================================================== -->
+<div id="collabModal" class="hire-modal-backdrop" style="display: none;">
+    <div class="hire-modal-card">
+        <button class="modal-close-btn" onclick="closeCollabModal()">&times;</button>
+        
+        <div class="modal-header">
+            <span class="modal-badge" style="border-color: #a855f7; color: #d8b4fe;">TRABALHO CONJUNTO</span>
+            <h3 id="collabModalTitle">Propor Parceria a @{{ project.author.username }}</h3>
+            <p>Convide o artista para co-criar uma animação, clipe ou asset conjunto.</p>
+        </div>
+
+        <form id="collabModalForm" method="POST" action="{% url 'propose_partnership' project.author.username %}">
+            {% csrf_token %}
+            <input type="hidden" name="project_id" value="{{ project.id }}">
+
+            <div class="form-group">
+                <label for="id_collab_title_det">Ideia / Nome do Projeto Conjunto *</label>
+                {{ partnership_form.title }}
+            </div>
+
+            <div class="form-group">
+                <label for="id_collab_roles_det">Divisão de Papéis e Habilidades</label>
+                {{ partnership_form.roles }}
+                <small class="upload-tip">Ex: Você faz Modelagem 3D & o Artista faz Rigging / Trilha Sonora.</small>
+            </div>
+
+            <div class="form-group">
+                <label for="id_collab_msg_det">Mensagem Inicial & Proposta Criativa *</label>
+                {{ partnership_form.message }}
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-modal-cancel" onclick="closeCollabModal()">Cancelar</button>
+                <button type="submit" class="btn-send-chat" style="padding: 12px 24px; font-size: 0.95rem;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><polyline points="16 11 18 13 22 9"></polyline></svg>
+                    <span>Enviar Proposta de Parceria</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock conteudo_principal %}
+
+{% block extra_js %}
+<script>
+    // Curtida assíncrona (AJAX) com fallback
+    const likeForm = document.getElementById('likeForm');
+    const btnLike = document.getElementById('btnLike');
+    const likeCountDisplay = document.getElementById('likeCountDisplay');
+
+    if (likeForm) {
+        likeForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(likeForm);
+
+            fetch(likeForm.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.total_likes !== undefined) {
+                    likeCountDisplay.textContent = data.total_likes;
+                    const heartSvg = btnLike.querySelector('.heart-svg');
+                    if (data.liked) {
+                        btnLike.classList.add('liked');
+                        if (heartSvg) {
+                            heartSvg.setAttribute('fill', '#f43f5e');
+                            heartSvg.setAttribute('stroke', '#f43f5e');
+                        }
+                        btnLike.querySelector('.like-label').textContent = 'Curtido';
+                        btnLike.style.transform = 'scale(1.15)';
+                    } else {
+                        btnLike.classList.remove('liked');
+                        if (heartSvg) {
+                            heartSvg.setAttribute('fill', 'none');
+                            heartSvg.setAttribute('stroke', 'currentColor');
+                        }
+                        btnLike.querySelector('.like-label').textContent = 'Curtir';
+                        btnLike.style.transform = 'scale(0.95)';
+                    }
+                    setTimeout(() => btnLike.style.transform = '', 200);
+                }
+            })
+            .catch(() => {
+                likeForm.submit();
+            });
+        });
+    }
+
+    // Alternância de Salvamento (Bookmark) AJAX no detalhe
+    const saveForm = document.getElementById('saveForm');
+    const btnSave = document.getElementById('btnSave');
+    const saveCountDisplay = document.getElementById('saveCountDisplay');
+    const saveLabelText = document.getElementById('saveLabelText');
+
+    if (saveForm && btnSave) {
+        saveForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const url = saveForm.action;
+            const csrfToken = saveForm.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.total_saves !== undefined) {
+                    if (saveCountDisplay) saveCountDisplay.textContent = data.total_saves;
+                    const bookmarkSvg = btnSave.querySelector('.bookmark-svg');
+                    if (data.saved) {
+                        btnSave.classList.add('saved');
+                        if (bookmarkSvg) {
+                            bookmarkSvg.setAttribute('fill', '#38bdf8');
+                            bookmarkSvg.setAttribute('stroke', '#38bdf8');
+                        }
+                        if (saveLabelText) saveLabelText.textContent = 'Salvo';
+                        btnSave.style.transform = 'scale(1.15)';
+                    } else {
+                        btnSave.classList.remove('saved');
+                        if (bookmarkSvg) {
+                            bookmarkSvg.setAttribute('fill', 'none');
+                            bookmarkSvg.setAttribute('stroke', 'currentColor');
+                        }
+                        if (saveLabelText) saveLabelText.textContent = 'Salvar';
+                        btnSave.style.transform = 'scale(0.95)';
+                    }
+                    setTimeout(() => btnSave.style.transform = '', 200);
+                }
+            })
+            .catch(() => {
+                saveForm.submit();
+            });
+        });
+    }
+
+    // Copiar Link
+    function copyProjectLink() {
+        navigator.clipboard.writeText(window.location.href);
+        const text = document.getElementById('shareBtnText');
+        if (text) {
+            text.textContent = 'Link Copiado!';
+            setTimeout(() => text.textContent = 'Compartilhar', 2000);
+        }
+    }
+
+    // Funções para Escolher / Mudar Preço da Arte (Autor e Comprador)
+    function formatPriceBR(val) {
+        const num = parseFloat(String(val).replace(',', '.'));
+        if (isNaN(num)) return '0,00';
+        return num.toFixed(2).replace('.', ',');
+    }
+
+    function setOwnerQuickPrice(priceStr) {
+        const input = document.getElementById('ownerPriceInput');
+        const display = document.getElementById('displayBuyAmount');
+        if (input) input.value = priceStr;
+        if (display) display.textContent = formatPriceBR(priceStr);
+        document.querySelectorAll('.owner-price-editor .price-chip-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.textContent.includes(formatPriceBR(priceStr)));
+        });
+    }
+
+    function previewOwnerPrice(val) {
+        const display = document.getElementById('displayBuyAmount');
+        if (display && val !== '') {
+            display.textContent = formatPriceBR(val);
+        }
+    }
+
+    function selectLicenseTier(btnElem, multiplier, label) {
+        const card = document.getElementById('buyAreaCard');
+        const basePrice = parseFloat((card?.getAttribute('data-base-price') || '49.90').replace(',', '.')) || 49.90;
+        const calculated = (basePrice * multiplier).toFixed(2);
+
+        document.querySelectorAll('.license-tier-btn').forEach(b => b.classList.remove('active'));
+        if (btnElem) btnElem.classList.add('active');
+
+        const display = document.getElementById('displayBuyAmount');
+        const tag = document.getElementById('displayLicenseTag');
+        const customInput = document.getElementById('buyerCustomPriceInput');
+        const modalPriceInput = document.getElementById('modalSelectedPriceInput');
+        const modalLicenseLabel = document.getElementById('modalLicenseLabel');
+        const modalLicenseInput = document.getElementById('modalLicenseInput');
+
+        if (display) display.textContent = formatPriceBR(calculated);
+        if (tag) tag.textContent = label;
+        if (customInput) customInput.value = calculated;
+        if (modalPriceInput) modalPriceInput.value = calculated;
+        if (modalLicenseLabel) modalLicenseLabel.textContent = label;
+        if (modalLicenseInput) modalLicenseInput.value = label;
+    }
+
+    function updateBuyerCustomPrice(val) {
+        const num = parseFloat(String(val).replace(',', '.'));
+        if (!isNaN(num) && num >= 0) {
+            const display = document.getElementById('displayBuyAmount');
+            const modalPriceInput = document.getElementById('modalSelectedPriceInput');
+            if (display) display.textContent = formatPriceBR(num);
+            if (modalPriceInput) modalPriceInput.value = num.toFixed(2);
+        }
+    }
+
+    // Inicializa os valores das licenças Pro e Full no carregamento
+    document.addEventListener('DOMContentLoaded', () => {
+        const card = document.getElementById('buyAreaCard');
+        if (card) {
+            const basePrice = parseFloat((card.getAttribute('data-base-price') || '49.90').replace(',', '.')) || 49.90;
+            const t1 = document.getElementById('tierPrice1');
+            const t2 = document.getElementById('tierPrice2');
+            const t3 = document.getElementById('tierPrice3');
+            if (t1) t1.textContent = `R$ ${formatPriceBR(basePrice)}`;
+            if (t2) t2.textContent = `R$ ${formatPriceBR(basePrice * 1.5)}`;
+            if (t3) t3.textContent = `R$ ${formatPriceBR(basePrice * 2)}`;
+        }
+    });
+
+    // Modal de Compra
+    function openBuyModal() {
+        const customInput = document.getElementById('buyerCustomPriceInput');
+        const modalPriceInput = document.getElementById('modalSelectedPriceInput');
+        if (customInput && modalPriceInput && customInput.value) {
+            modalPriceInput.value = parseFloat(customInput.value).toFixed(2);
+        }
+        const modal = document.getElementById('buyModelModal');
+        if (modal) modal.style.display = 'flex';
+    }
+
+    function closeBuyModal() {
+        const modal = document.getElementById('buyModelModal');
+        if (modal) modal.style.display = 'none';
+    }
+
+    // Modal de Exclusão
+    function openDeleteModal() {
+        const modal = document.getElementById('deleteModal');
+        if (modal) modal.style.display = 'flex';
+    }
+
+    function closeDeleteModal() {
+        const modal = document.getElementById('deleteModal');
+        if (modal) modal.style.display = 'none';
+    }
+
+    // Modal de Contratação
+    function openHireModal(handle, username, projId, projTitle) {
+        const modal = document.getElementById('hireModal');
+        if (modal) modal.style.display = 'flex';
+    }
+
+    function closeHireModal() {
+        const modal = document.getElementById('hireModal');
+        if (modal) modal.style.display = 'none';
+    }
+
+    // Modal de Parceria no Detalhe
+    function openCollabModal(handle, username, projId, projTitle) {
+        const modal = document.getElementById('collabModal');
+        const formElem = document.getElementById('collabModalForm');
+        const titleElem = document.getElementById('collabModalTitle');
+        const titleInput = document.querySelector('#collabModalForm input[name="title"]');
+
+        if (titleElem) {
+            titleElem.textContent = `Propor Parceria a ${handle}`;
+        }
+        if (formElem && username) {
+            formElem.action = `/parceria/${username}/propor/`;
+        }
+        if (titleInput && projTitle && !titleInput.value) {
+            titleInput.value = `Colaboração: ${projTitle}`;
+        }
+        if (modal) modal.style.display = 'flex';
+    }
+
+    function closeCollabModal() {
+        const modal = document.getElementById('collabModal');
+        if (modal) modal.style.display = 'none';
+    }
+
+    // Fechar modais ao clicar no fundo
+    window.addEventListener('click', (e) => {
+        ['buyModelModal', 'deleteModal', 'hireModal', 'collabModal'].forEach(id => {
+            const m = document.getElementById(id);
+            if (m && e.target === m) {
+                m.style.display = 'none';
+            }
+        });
+    });
+</script>
+{% endblock extra_js %}

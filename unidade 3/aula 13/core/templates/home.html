@@ -1,58 +1,680 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block title %}Feed de Motion Design | ArtFlow{% endblock %}
+
 {% block conteudo_principal %}
+<!-- GIF de fundo animado para manter a consistência com a identidade visual -->
+<img src="{% static 'videos/avedeto-night.gif' %}" alt="Motion Background" class="background-motion-video">
+<div class="video-overlay"></div>
+
 <!-- Barra de Navegação Superior (Pós-Login) -->
 <header class="navbar-logged">
-    <div class="logo">
-        <h1>ArtFlow</h1>
-        <span>| Motion</span>
+    <div class="navbar-left">
+        <a href="{% url 'home' %}" class="logo-link">
+            <img src="{% static 'images/artflow-logo.png' %}" alt="ArtFlow Logo" class="brand-logo-img">
+            <h1>ArtFlow</h1>
+            <span class="logo-tag">| Motion</span>
+        </a>
     </div>
     
     <div class="search-bar">
-        <input type="text" placeholder="Busque por motion graphics, animações 3D, VFX...">
+        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Buscar por títulos, criadores, 3D, VFX, motion...">
+        <span class="search-shortcut">Ctrl+K</span>
     </div>
 
     <nav class="nav-links">
-        <a href="#" class="active">Explorar</a>
-        <a href="#">Mensagens</a>
-        <a href="#" class="profile-link">Meu Perfil</a>
+        <a href="{% url 'home' %}" class="nav-item active">
+            <svg class="nav-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                <polyline points="2 17 12 22 22 17"></polyline>
+                <polyline points="2 12 12 17 22 12"></polyline>
+            </svg>
+            <span>Explorar</span>
+        </a>
+
+        <!-- Botão de Alternar Modo Claro/Escuro -->
+        <button class="btn-theme-toggle nav-item-theme" onclick="toggleTheme()" title="Alternar Modo Claro / Modo Escuro">
+            <span class="theme-icon icon-sun">☀️</span>
+            <span class="theme-icon icon-moon">🌙</span>
+        </button>
+
+        <!-- Link para o Perfil Próprio com Avatar Dinâmico -->
+        <a href="{% url 'profile' request.user.username %}" class="user-profile-badge-link" title="Meu Perfil">
+            <div class="user-profile-badge">
+                {% if request.user.profile.avatar %}
+                    <img src="{{ request.user.profile.avatar.url }}" alt="{{ request.user.username }}" class="user-avatar-img">
+                {% else %}
+                    <div class="user-avatar">{{ request.user.username|slice:":1"|upper }}</div>
+                {% endif %}
+                <div class="user-info">
+                    <span class="user-role">Meu Perfil</span>
+                    <span class="user-name">{{ request.user.username }}</span>
+                </div>
+            </div>
+        </a>
+
+        <a href="{% url 'logout' %}" class="btn-logout" title="Encerrar sessão">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            <span>Sair</span>
+        </a>
     </nav>
 </header>
 
-<!-- Filtros de Categorias -->
-<section class="filters">
-    <button class="filter-btn active">Todos</button>
-    <button class="filter-btn">Animação 3D</button>
-    <button class="filter-btn">Motion Graphics 2D</button>
-    <button class="filter-btn">VFX</button>
-    <button class="filter-btn">TV & Cinema</button>
-</section>
+<div class="feed-wrapper">
 
-<!-- Feed de Artes Aleatórias (Estilo Behance) -->
-<section class="projects-grid">
-    <!-- Card de Exemplo 1 -->
-    <div class="project-card">
-        <div class="thumbnail-container">
-            <div class="play-badge">▶</div>
-            <img src="{% static 'images/projeto1.jpg' %}" alt="Arte Motion">
+    <!-- Mensagens de Alerta / Sucesso -->
+    {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+                <div class="alert-box alert-{{ message.tags }}">
+                    <span class="alert-icon">
+                        {% if message.tags == 'success' %}
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        {% elif message.tags == 'error' %}
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        {% else %}
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                        {% endif %}
+                    </span>
+                    <span>{{ message }}</span>
+                </div>
+            {% endfor %}
         </div>
-        <div class="project-info">
-            <h3>Animação de Personagem 3D</h3>
-            <p>Por <span>@MotionBruno</span></p>
-        </div>
-    </div>
+    {% endif %}
 
-    <!-- Card de Exemplo 2 -->
-    <div class="project-card">
-        <div class="thumbnail-container">
-            <div class="play-badge">▶</div>
-            <img src="{% static 'images/projeto2.jpg' %}" alt="Arte Motion">
+    <!-- Banner de Destaque do Feed com Logo Oficial e Estatísticas em Evidência -->
+    <section class="feed-hero-banner">
+        <div class="feed-hero-glow"></div>
+
+        <div class="feed-hero-main-wrapper">
+            <!-- Emblema da Logo ArtFlow em Alto Destaque -->
+            <div class="hero-logo-showcase" title="ArtFlow Motion Network">
+                <div class="hero-logo-ring">
+                    <img src="{% static 'images/artflow-logo.png' %}" alt="ArtFlow Logo" class="hero-emblem-img">
+                </div>
+            </div>
+
+            <div class="feed-hero-content">
+                <h2>O Universo do Motion Design</h2>
+                <p>Descubra animações 3D, VFX de cinema, tipografia cinética e compartilhe suas próprias criações com a comunidade criativa.</p>
+            </div>
         </div>
-        <div class="project-info">
-            <h3>Gráficos em Loop</h3>
-            <p>Por <span>@AnaVFX</span></p>
+
+        <!-- Cards de Estatísticas em Alto Destaque -->
+        <div class="feed-hero-stats">
+            <!-- PRIMEIRO CARD: PROJETOS ATIVOS COM MÁXIMO DESTAQUE -->
+            <div class="stat-card stat-card-featured" title="Total de Projetos e Produções Ativas">
+                <div class="stat-icon-box">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line></svg>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-number">{{ total_projects }}</span>
+                    <span class="stat-label">Projetos Ativos</span>
+                    <span class="stat-subtext">No feed da plataforma</span>
+                </div>
+            </div>
+
+            <!-- SEGUNDO CARD: USUÁRIOS NO SITE EM ALTO DESTAQUE -->
+            <div class="stat-card stat-card-highlight" title="Total de Usuários Cadastrados">
+                <div class="stat-icon-box">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-number">{{ total_users }}</span>
+                    <span class="stat-label">Usuários no Site</span>
+                    <span class="stat-subtext">Membros conectados</span>
+                </div>
+            </div>
+
+            <!-- TERCEIRO CARD: CRIADORES COM OBRAS -->
+            <div class="stat-card" title="Artistas com Portfólio Ativo">
+                <div class="stat-icon-box">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-number">{{ total_creators }}</span>
+                    <span class="stat-label">Criadores Ativos</span>
+                    <span class="stat-subtext">Com portfólio público</span>
+                </div>
+            </div>
         </div>
+    </section>
+
+    <!-- Barra de Filtros de Categorias -->
+    <section class="filters-container">
+        <div class="filters-header">
+            <span class="filters-title">Filtrar por Especialidade:</span>
+            <span class="results-counter" id="resultsCount">Exibindo {{ projects.count }} projetos</span>
+        </div>
+        <div class="filters" id="categoryFilters">
+            <button class="filter-btn active" data-filter="all">
+                <svg class="filter-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                <span>Todos</span>
+            </button>
+            <button class="filter-btn" data-filter="3d">
+                <svg class="filter-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                <span>Animação 3D</span>
+            </button>
+            <button class="filter-btn" data-filter="2d">
+                <svg class="filter-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+                <span>Motion 2D & Loops</span>
+            </button>
+            <button class="filter-btn" data-filter="vfx">
+                <svg class="filter-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="14.31" y1="8" x2="20.05" y2="17.94"></line><line x1="9.69" y1="8" x2="21.17" y2="8"></line><line x1="7.38" y1="12" x2="13.12" y2="2.06"></line><line x1="9.69" y1="16" x2="3.95" y2="6.06"></line><line x1="14.31" y1="16" x2="2.83" y2="16"></line><line x1="16.62" y1="12" x2="10.88" y2="21.94"></line></svg>
+                <span>VFX & Efeitos</span>
+            </button>
+            <button class="filter-btn" data-filter="kinetic">
+                <svg class="filter-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg>
+                <span>Tipografia Cinética</span>
+            </button>
+            <button class="filter-btn" data-filter="cinema">
+                <svg class="filter-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>
+                <span>Cinema & TV</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- Grid de Artes / Portfólios Vindo do Banco de Dados -->
+    <section class="projects-grid" id="projectsGrid">
+        {% for project in projects %}
+            <article class="project-card" data-category="{{ project.category }}" data-title="{{ project.title }}" data-author="{{ project.author.username }}">
+                <a href="{% url 'project_detail' project.id %}" class="thumbnail-link" title="Ver arte e detalhes">
+                    <div class="thumbnail-container">
+                        <div class="thumbnail-preview {{ project.preview_style }}" {% if project.thumbnail %}style="background-image: url('{{ project.thumbnail.url }}'); background-size: cover; background-position: center;"{% endif %}>
+                            {% if project.video_demo %}
+                                {% if project.is_video_gif %}
+                                    <img src="{{ project.video_demo.url }}" alt="{{ project.title }}" class="card-video-preview">
+                                {% else %}
+                                    <video src="{{ project.video_demo.url }}" class="card-video-preview" autoplay loop muted playsinline preload="metadata" {% if project.thumbnail %}poster="{{ project.thumbnail.url }}"{% endif %}></video>
+                                {% endif %}
+                            {% endif %}
+                            <div class="scanlines"></div>
+                            <span class="badge-tag tag-{{ project.category }}">{{ project.get_category_display }}</span>
+                            <span class="duration-badge">{{ project.duration }}</span>
+                            <div class="play-badge" title="Assistir / Ver Detalhes">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+
+                <div class="project-info">
+                    <div class="project-header-row">
+                        <a href="{% url 'project_detail' project.id %}" class="project-title-link">
+                            <h3>{{ project.title }}</h3>
+                        </a>
+                    </div>
+
+                    <!-- Autor com link direto para a página de perfil -->
+                    <div class="author-row">
+                        <a href="{% url 'profile' project.author.username %}" class="author-link" title="Ver perfil de @{{ project.author.username }}">
+                            {% if project.author.profile.avatar %}
+                                <img src="{{ project.author.profile.avatar.url }}" alt="{{ project.author.username }}" class="avatar-small-img">
+                            {% else %}
+                                <span class="avatar-small av-{{ forloop.counter }}">{{ project.author.username|slice:":2"|upper }}</span>
+                            {% endif %}
+                            <span class="author-name">Por <strong class="author-tag">@{{ project.author.username }}</strong></span>
+                        </a>
+                    </div>
+
+                    <div class="card-meta">
+                        <div class="meta-stats">
+                            <button class="like-button {% if request.user in project.likes.all %}liked{% endif %}" data-project-id="{{ project.id }}" title="Curtir projeto">
+                                <svg class="heart-svg" width="16" height="16" viewBox="0 0 24 24" fill="{% if request.user in project.likes.all %}#f43f5e{% else %}none{% endif %}" stroke="{% if request.user in project.likes.all %}#f43f5e{% else %}currentColor{% endif %}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                </svg>
+                                <span class="like-count">{{ project.total_likes }}</span>
+                            </button>
+                            <button class="bookmark-button {% if request.user in project.saved_by.all %}saved{% endif %}" data-project-id="{{ project.id }}" title="Salvar projeto nos seus favoritos">
+                                <svg class="bookmark-svg" width="15" height="15" viewBox="0 0 24 24" fill="{% if request.user in project.saved_by.all %}#38bdf8{% else %}none{% endif %}" stroke="{% if request.user in project.saved_by.all %}#38bdf8{% else %}currentColor{% endif %}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                                </svg>
+                                <span class="bookmark-count">{{ project.total_saves }}</span>
+                            </button>
+                        </div>
+
+                        <!-- Botão de Contratação Direta no Card -->
+                        {% if request.user != project.author %}
+                            <button class="btn-card-hire" onclick="openHomeHireModal('@{{ project.author.username }}', '{{ project.author.username }}', '{{ project.id }}', '{{ project.title }}')" title="Solicitar orçamento para este estilo">
+                                Contratar
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </article>
+        {% empty %}
+            <div class="empty-state">
+                <svg class="empty-svg" width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line></svg>
+                <h3>Nenhum projeto encontrado</h3>
+                <p>Seja o primeiro a publicar uma animação no ArtFlow!</p>
+                <button class="btn-art-primary" onclick="openPublishModal()" style="margin-top: 15px;">
+                    Adicione seu Projeto
+                </button>
+            </div>
+        {% endfor %}
+    </section>
+
+    <!-- Estado vazio quando nada for encontrado na busca -->
+    <div id="noResults" class="empty-state" style="display: none;">
+        <svg class="empty-svg" width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <h3>Nenhum projeto encontrado</h3>
+        <p>Tente buscar por outro termo ou selecione a categoria "Todos".</p>
     </div>
-</section>
+</div>
+
+<!-- ==========================================================================
+     MODAL DE PUBLICAR / ADICIONAR NOVO PROJETO
+     ========================================================================== -->
+<div id="publishProjectModal" class="hire-modal-backdrop" style="display: none;">
+    <div class="hire-modal-card">
+        <button class="modal-close-btn" onclick="closePublishModal()">&times;</button>
+        
+        <div class="modal-header">
+            <span class="modal-badge">NOVO PROJETO MOTION</span>
+            <h3>Adicionar Projeto ao ArtFlow</h3>
+            <p>Envie seu vídeo de motion design, animação 3D/2D ou loop audiovisual para a comunidade.</p>
+        </div>
+
+        <form method="POST" action="{% url 'add_project' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="{{ project_form.title.id_for_label }}">Título do Projeto *</label>
+                {{ project_form.title }}
+            </div>
+
+            <div class="form-grid-two">
+                <div class="form-group">
+                    <label for="{{ project_form.category.id_for_label }}">Categoria de Motion *</label>
+                    {{ project_form.category }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ project_form.duration.id_for_label }}">Duração Estimada</label>
+                    {{ project_form.duration }}
+                </div>
+            </div>
+
+            <!-- UPLOAD DE VÍDEO DE MOTION DESIGN EM DESTAQUE PRINCIPAL -->
+            <div class="form-group">
+                <label>Vídeo / Animação de Motion Design (MP4, WebM, MOV ou GIF) *</label>
+                <div class="avatar-upload-controls">
+                    <label class="btn-upload-file" for="{{ project_form.video_demo.id_for_label }}" style="display: inline-flex; align-items: center; gap: 8px;">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+                        <span>Selecionar Vídeo de Motion Design</span>
+                    </label>
+                    {{ project_form.video_demo }}
+                    <span id="videoFileName" class="upload-tip">Formatos aceitos: MP4, WebM, MOV, AVI ou animação GIF.</span>
+                    <video id="videoUploadPreview" style="display: none; width: 100%; max-height: 190px; border-radius: 8px; margin-top: 8px; background: #000;" controls muted loop playsinline></video>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Capa / Thumbnail Personalizada (Opcional)</label>
+                <div class="avatar-upload-controls">
+                    <label class="btn-upload-file" for="{{ project_form.thumbnail.id_for_label }}" style="display: inline-flex; align-items: center; gap: 8px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        <span>Selecionar Imagem de Capa (Opcional)</span>
+                    </label>
+                    {{ project_form.thumbnail }}
+                    <span id="thumbnailFileName" class="upload-tip">Opcional: se não enviar capa, o próprio vídeo será exibido automaticamente no card.</span>
+                </div>
+            </div>
+
+            <div class="form-grid-two">
+                <div class="form-group">
+                    <label for="{{ project_form.preview_style.id_for_label }}">Estilo Visual de Fundo</label>
+                    {{ project_form.preview_style }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ project_form.price.id_for_label }}">Preço do Asset / Projeto (R$)</label>
+                    {{ project_form.price }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="{{ project_form.description.id_for_label }}">Descrição / Softwares Utilizados</label>
+                {{ project_form.description }}
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-modal-cancel" onclick="closePublishModal()">Cancelar</button>
+                <button type="submit" class="btn-modal-submit">Publicar no Feed</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ==========================================================================
+     MODAL DE CONTRATAÇÃO NA HOME
+     ========================================================================== -->
+<div id="homeHireModal" class="hire-modal-backdrop" style="display: none;">
+    <div class="hire-modal-card">
+        <button class="modal-close-btn" onclick="closeHomeHireModal()">&times;</button>
+        
+        <div class="modal-header">
+            <span class="modal-badge">SOLICITAR CONTRATAÇÃO</span>
+            <h3 id="homeHireCreatorTitle">Contratar Criador</h3>
+            <p>Envie os detalhes do seu projeto para receber uma proposta.</p>
+        </div>
+
+        <form id="homeHireForm" method="POST" action="">
+            {% csrf_token %}
+            <input type="hidden" name="project_id" id="homeHireProjectId" value="">
+            <input type="hidden" name="next" value="{{ request.path }}">
+
+            <div class="form-group">
+                <label for="id_client_name">Seu Nome ou Empresa *</label>
+                {{ hiring_form.client_name }}
+            </div>
+
+            <div class="form-group">
+                <label for="id_client_email">Seu E-mail de Retorno *</label>
+                {{ hiring_form.client_email }}
+            </div>
+
+            <div class="form-grid-two">
+                <div class="form-group">
+                    <label for="id_project_title">Título do Projeto *</label>
+                    {{ hiring_form.project_title }}
+                </div>
+                <div class="form-group">
+                    <label for="id_budget">Orçamento Estimado</label>
+                    {{ hiring_form.budget }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="id_message">Detalhes do Projeto / Prazos / Referências *</label>
+                {{ hiring_form.message }}
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-modal-cancel" onclick="closeHomeHireModal()">Cancelar</button>
+                <button type="submit" class="btn-modal-submit">Enviar Solicitação</button>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock conteudo_principal %}
+
+{% block extra_js %}
+<script>
+    // Filtro interativo de categorias e busca em tempo real na Home
+    document.addEventListener('DOMContentLoaded', () => {
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const cards = document.querySelectorAll('.project-card');
+        const searchInput = document.getElementById('searchInput');
+        const resultsCount = document.getElementById('resultsCount');
+        const noResults = document.getElementById('noResults');
+
+        let currentCategory = 'all';
+        let searchQuery = '';
+
+        function updateFilter() {
+            let visibleCount = 0;
+
+            cards.forEach(card => {
+                const category = card.getAttribute('data-category');
+                const title = (card.getAttribute('data-title') || '').toLowerCase();
+                const author = (card.getAttribute('data-author') || '').toLowerCase();
+
+                const matchesCategory = (currentCategory === 'all' || category === currentCategory);
+                const matchesSearch = !searchQuery || title.includes(searchQuery) || author.includes(searchQuery);
+
+                if (matchesCategory && matchesSearch) {
+                    card.style.display = 'flex';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            if (resultsCount) {
+                resultsCount.textContent = `Exibindo ${visibleCount} projeto${visibleCount === 1 ? '' : 's'}`;
+            }
+
+            if (noResults) {
+                noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+            }
+        }
+
+        // Eventos nos botões de filtro
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentCategory = btn.getAttribute('data-filter');
+                updateFilter();
+            });
+        });
+
+        // Evento no campo de busca
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                searchQuery = e.target.value.trim().toLowerCase();
+                updateFilter();
+            });
+
+            // Atalho de teclado Ctrl + K para focar na busca
+            window.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                    e.preventDefault();
+                    searchInput.focus();
+                }
+            });
+        }
+
+        // Interação de curtir nos cards com envio ao backend
+        document.querySelectorAll('.like-button').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                const projectId = btn.getAttribute('data-project-id');
+                if (!projectId) return;
+
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '{{ csrf_token }}';
+
+                try {
+                    const response = await fetch(`/projeto/${projectId}/curtir/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        const heartSvg = btn.querySelector('.heart-svg');
+                        const countSpan = btn.querySelector('.like-count');
+                        if (data.liked) {
+                            btn.classList.add('liked');
+                            if (heartSvg) {
+                                heartSvg.setAttribute('fill', '#f43f5e');
+                                heartSvg.setAttribute('stroke', '#f43f5e');
+                            }
+                        } else {
+                            btn.classList.remove('liked');
+                            if (heartSvg) {
+                                heartSvg.setAttribute('fill', 'none');
+                                heartSvg.setAttribute('stroke', 'currentColor');
+                            }
+                        }
+                        if (countSpan) countSpan.textContent = data.total_likes;
+                        btn.style.transform = 'scale(1.2)';
+                        setTimeout(() => btn.style.transform = '', 200);
+                    }
+                } catch (err) {
+                    console.error('Erro ao curtir:', err);
+                }
+            });
+        });
+
+        // Alternância de Salvamento (Bookmark) AJAX nos cards do Feed
+        document.querySelectorAll('.bookmark-button').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const projectId = btn.getAttribute('data-project-id');
+                const csrfToken = '{{ csrf_token }}';
+
+                try {
+                    const response = await fetch(`/projeto/${projectId}/salvar/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        const bookmarkSvg = btn.querySelector('.bookmark-svg');
+                        const countSpan = btn.querySelector('.bookmark-count');
+
+                        if (data.saved) {
+                            btn.classList.add('saved');
+                            if (bookmarkSvg) {
+                                bookmarkSvg.setAttribute('fill', '#38bdf8');
+                                bookmarkSvg.setAttribute('stroke', '#38bdf8');
+                            }
+                        } else {
+                            btn.classList.remove('saved');
+                            if (bookmarkSvg) {
+                                bookmarkSvg.setAttribute('fill', 'none');
+                                bookmarkSvg.setAttribute('stroke', 'currentColor');
+                            }
+                        }
+                        if (countSpan) countSpan.textContent = data.total_saves;
+                        btn.style.transform = 'scale(1.2)';
+                        setTimeout(() => btn.style.transform = '', 200);
+                    }
+                } catch (err) {
+                    console.error('Erro ao salvar projeto:', err);
+                }
+            });
+        });
+
+        // Nome do arquivo de vídeo e pré-visualização ao selecionar
+        const videoInput = document.getElementById('projectVideoInput');
+        if (videoInput) {
+            videoInput.addEventListener('change', (e) => {
+                const nameDisplay = document.getElementById('videoFileName');
+                const previewVideo = document.getElementById('videoUploadPreview');
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    if (nameDisplay) {
+                        const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+                        nameDisplay.textContent = `🎬 Vídeo selecionado: ${file.name} (${sizeMB} MB)`;
+                        nameDisplay.style.color = 'var(--neon-cyan)';
+                        nameDisplay.style.fontWeight = '600';
+                    }
+                    if (previewVideo && file.type.startsWith('video/')) {
+                        const fileURL = URL.createObjectURL(file);
+                        previewVideo.src = fileURL;
+                        previewVideo.style.display = 'block';
+                        previewVideo.onloadedmetadata = () => {
+                            const durationInput = document.querySelector('#publishProjectModal input[name="duration"]');
+                            if (durationInput && (!durationInput.value || durationInput.value === '0:30')) {
+                                const totalSec = Math.round(previewVideo.duration || 0);
+                                if (totalSec > 0) {
+                                    const mins = Math.floor(totalSec / 60);
+                                    const secs = String(totalSec % 60).padStart(2, '0');
+                                    durationInput.value = `${mins}:${secs}`;
+                                }
+                            }
+                        };
+                    } else if (previewVideo) {
+                        previewVideo.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        // Nome do arquivo de thumbnail ao selecionar
+        const thumbInput = document.getElementById('projectThumbnailInput');
+        if (thumbInput) {
+            thumbInput.addEventListener('change', (e) => {
+                const nameDisplay = document.getElementById('thumbnailFileName');
+                if (nameDisplay && e.target.files.length > 0) {
+                    nameDisplay.textContent = `🖼️ Capa selecionada: ${e.target.files[0].name}`;
+                    nameDisplay.style.color = 'var(--neon-cyan)';
+                    nameDisplay.style.fontWeight = '600';
+                }
+            });
+        }
+    });
+
+    // Funções do Modal de Publicação de Projeto
+    function openPublishModal() {
+        const modal = document.getElementById('publishProjectModal');
+        if (modal) {
+            modal.style.display = 'flex';
+        }
+    }
+
+    function closePublishModal() {
+        const modal = document.getElementById('publishProjectModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    // Funções do Modal de Contratação na Home
+    function openHomeHireModal(creatorHandle, username, projectId, projectTitle) {
+        const modal = document.getElementById('homeHireModal');
+        const titleElem = document.getElementById('homeHireCreatorTitle');
+        const formElem = document.getElementById('homeHireForm');
+        const projectIdInput = document.getElementById('homeHireProjectId');
+        const projectTitleInput = formElem ? formElem.querySelector('input[name="project_title"]') : null;
+
+        if (titleElem) {
+            titleElem.textContent = `Contratar ${creatorHandle}`;
+        }
+
+        if (formElem && username) {
+            formElem.action = `/contratar/${username}/`;
+        }
+
+        if (projectIdInput) {
+            projectIdInput.value = projectId || '';
+        }
+
+        if (projectTitleInput && projectTitle) {
+            projectTitleInput.value = `Interesse no Projeto: ${projectTitle}`;
+        }
+
+        if (modal) {
+            modal.style.display = 'flex';
+        }
+    }
+
+    function closeHomeHireModal() {
+        const modal = document.getElementById('homeHireModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    window.addEventListener('click', (e) => {
+        const hireModal = document.getElementById('homeHireModal');
+        const publishModal = document.getElementById('publishProjectModal');
+        if (e.target === hireModal) {
+            closeHomeHireModal();
+        }
+        if (e.target === publishModal) {
+            closePublishModal();
+        }
+    });
+</script>
+{% endblock extra_js %}

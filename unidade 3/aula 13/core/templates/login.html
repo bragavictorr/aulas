@@ -8,6 +8,10 @@
 
 <div class="auth-container">
     <div class="auth-card">
+        <a href="{% url 'landing' %}" class="auth-back-link">Voltar ao Início</a>
+        <div style="text-align: center; margin: 8px 0 14px;">
+            <img src="{% static 'images/artflow-logo.png' %}" alt="ArtFlow Logo" style="width: 58px; height: 58px; border-radius: 50%; box-shadow: 0 0 18px rgba(0, 255, 204, 0.45); object-fit: cover;">
+        </div>
         <h2>LOGIN</h2>
         <form method="POST">
             {% csrf_token %}

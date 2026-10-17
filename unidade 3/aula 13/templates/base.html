@@ -1,12 +1,52 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" data-theme="dark">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArtFlow | Motion Design</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <title>{% block title %}ArtFlow | Motion Design & Portfólio Audiovisual{% endblock %}</title>
+    
+    <!-- Meta tags SEO essenciais -->
+    <meta name="description" content="ArtFlow é o ponto de encontro definitivo para Motion Designers, artistas 3D e clientes. Exponha portfólios, descubra animações e contrate talentos.">
+    <meta name="keywords" content="motion design, animação 3d, vfx, after effects, blender, cinema 4d, portfolio de animação, contratar animador">
+    <meta name="author" content="ArtFlow Community">
+
+    <!-- Open Graph / Redes Sociais (WhatsApp, Facebook, LinkedIn) -->
+    {% block extra_head %}
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="ArtFlow Motion">
+    <meta property="og:title" content="ArtFlow | O Ponto de Encontro do Motion Design">
+    <meta property="og:description" content="Descubra portfólios audiovisuais incríveis, compre assets 3D e conecte-se com animadores profissionais.">
+    <meta property="og:image" content="{% static 'images/artflow-logo.png' %}">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="ArtFlow | Motion Design Platform">
+    <meta name="twitter:description" content="Conectando Motion Designers, Artistas 3D e Criativos do mundo todo.">
+    <meta name="twitter:image" content="{% static 'images/artflow-logo.png' %}">
+    {% endblock extra_head %}
+
+    <!-- Script anti-flicker para carregamento imediato do Dark/Light mode -->
+    <script>
+        (function() {
+            var theme = localStorage.getItem('artflow_theme');
+            if (theme === 'light' || (!theme && window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'light');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+
+    <!-- Fontes do Google: Outfit e Press Start 2P -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=18">
+    <link rel="icon" type="image/png" href="{% static 'images/artflow-logo.png' %}">
+    {% block extra_css %}{% endblock %}
 </head>
 
 <body>
@@ -14,24 +54,35 @@
     <main>
         {% block conteudo_principal %}
         
-        <!-- Seção Inicial em Tela Cheia com Motion Design de Fundo -->
+        <!-- SEÇÃO HERO EM TELA CHEIA (COM ANIMAÇÃO DE FUNDO NÍTIDA) -->
         <section class="hero-fullscreen-motion">
             
             <!-- GIF animado de fundo rodando em loop -->
             <img src="{% static 'videos/avedeto-night.gif' %}" alt="Motion Background" class="background-motion-video">
 
-            <!-- Camada escura translúcida -->
+            <!-- Camada translúcida suave -->
             <div class="video-overlay"></div>
 
-            <!-- Cabeçalho simples com a Logo -->
+            <!-- Cabeçalho da Landing Page -->
             <header class="hero-navbar">
                 <div class="logo">
+                    <img src="{% static 'images/artflow-logo.png' %}" alt="ArtFlow Logo" class="brand-logo-img">
                     <h1>ArtFlow</h1>
                     <span>| Motion</span>
                 </div>
+
+                <div class="hero-nav-actions">
+                    <button class="btn-theme-toggle header-theme-btn" onclick="toggleTheme()" title="Alternar Modo Claro/Escuro">
+                        <span class="theme-icon icon-sun">☀️</span>
+                        <span class="theme-icon icon-moon">🌙</span>
+                    </button>
+                    <a href="{% url 'home' %}" class="hero-nav-link">Explorar Artes</a>
+                    <a href="{% url 'login' %}" class="hero-nav-link btn-ghost-login">Entrar</a>
+                    <a href="{% url 'cadastro' %}" class="hero-nav-link btn-solid-signup">Cadastre-se</a>
+                </div>
             </header>
 
-            <!-- Conteúdo Central -->
+            <!-- Conteúdo Central da Hero -->
             <div class="hero-main-content">
                 <h2>
                     <span class="glow-word w1">O</span> 
@@ -51,17 +102,273 @@
                     e conectar criativos diretamente a quem quer contratar talentos para o próximo projeto.
                 </p>
                 
-                <!-- Botão de Acesso -->
+                <!-- Botões de Ação na Hero -->
                 <div class="hero-cta-buttons">
-                    <a href="{% url 'login' %}" class="btn-main-access">Faça seu Login ou Cadastre-se</a>
+                    <a href="{% url 'cadastro' %}" class="btn-main-access">Criar Perfil de Criador Grátis</a>
+                    <a href="#vitrinePublica" class="btn-main-access btn-secondary-explore">Explorar Vitrine de Animações ↓</a>
                 </div>
             </div>
 
         </section>
 
+        <!-- SEÇÃO 1: MÉTRICAS SOCIAIS E IMPACTO DA COMUNIDADE -->
+        <section class="landing-metrics-strip">
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-number">+{{ total_creators }}</div>
+                    <div class="metric-label">Motion Designers Ativos</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-number">+{{ total_projects }}</div>
+                    <div class="metric-label">Artes & Animações 3D/2D</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-number">+{{ total_views }}</div>
+                    <div class="metric-label">Visualizações na Comunidade</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-number">100%</div>
+                    <div class="metric-label">Gratuito para Divulgação</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO 2: MOTION DO DIA (DESTAQUE DA COMUNIDADE) -->
+        {% if motion_of_the_day %}
+        <section class="landing-featured-spotlight">
+            <div class="section-container">
+                <div class="section-header-tag">
+                    <span class="spotlight-badge">⭐ MOTION EM DESTAQUE</span>
+                    <h3>A Criação em Alta na Plataforma</h3>
+                </div>
+
+                <div class="spotlight-card">
+                    <div class="spotlight-preview-wrap">
+                        {% if motion_of_the_day.video_demo %}
+                            {% if motion_of_the_day.is_video_gif %}
+                                <img src="{{ motion_of_the_day.video_demo.url }}" alt="{{ motion_of_the_day.title }}" class="spotlight-img">
+                            {% else %}
+                                <video src="{{ motion_of_the_day.video_demo.url }}" class="spotlight-img" autoplay loop muted playsinline></video>
+                            {% endif %}
+                        {% elif motion_of_the_day.thumbnail %}
+                            <img src="{{ motion_of_the_day.thumbnail.url }}" alt="{{ motion_of_the_day.title }}" class="spotlight-img">
+                        {% else %}
+                            <div class="spotlight-placeholder">
+                                <span>{{ motion_of_the_day.title }}</span>
+                            </div>
+                        {% endif %}
+                        <span class="spotlight-category-chip">{{ motion_of_the_day.get_category_display }}</span>
+                    </div>
+
+                    <div class="spotlight-info">
+                        <div class="spotlight-author">
+                            {% if motion_of_the_day.author.profile.avatar %}
+                                <img src="{{ motion_of_the_day.author.profile.avatar.url }}" alt="{{ motion_of_the_day.author.username }}" class="author-mini-avatar">
+                            {% else %}
+                                <div class="author-mini-letter">{{ motion_of_the_day.author.username|slice:":1"|upper }}</div>
+                            {% endif %}
+                            <div>
+                                <span class="author-by">Criado por</span>
+                                <strong>@{{ motion_of_the_day.author.username }}</strong>
+                            </div>
+                        </div>
+
+                        <h4>{{ motion_of_the_day.title }}</h4>
+                        <p>{{ motion_of_the_day.description|truncatewords:28|default:"Uma produção visual impressionante desenvolvida e publicada na comunidade ArtFlow." }}</p>
+
+                        <div class="spotlight-stats">
+                            <span>❤️ <strong>{{ motion_of_the_day.total_likes }}</strong> curtidas</span>
+                            {% if motion_of_the_day.is_for_sale %}
+                                <span class="badge-price">R$ {{ motion_of_the_day.price }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="spotlight-actions">
+                            <a href="{% url 'project_detail' motion_of_the_day.id %}" class="btn-spotlight-view">Assistir & Ver Detalhes →</a>
+                            <a href="{% url 'login' %}" class="btn-spotlight-hire">Contratar Criador</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- SEÇÃO 3: VITRINE PÚBLICA DE PROJETOS (SHOWCASE) -->
+        <section class="landing-showcase-section" id="vitrinePublica">
+            <div class="section-container">
+                <div class="section-title-wrap">
+                    <span class="sub-badge">SHOWCASE PÚBLICO</span>
+                    <h3>Explore as Últimas Obras Audiovisuais</h3>
+                    <p>Veja animações produzidas com Blender, After Effects, Cinema 4D e Unreal Engine pelos membros da comunidade.</p>
+                </div>
+
+                {% if featured_projects %}
+                <div class="showcase-grid">
+                    {% for proj in featured_projects %}
+                    <div class="showcase-card">
+                        <a href="{% url 'project_detail' proj.id %}" class="showcase-card-link">
+                            <div class="showcase-thumb-wrap">
+                                {% if proj.video_demo %}
+                                    {% if proj.is_video_gif %}
+                                        <img src="{{ proj.video_demo.url }}" alt="{{ proj.title }}" class="showcase-img" loading="lazy">
+                                    {% else %}
+                                        <video src="{{ proj.video_demo.url }}" class="showcase-img" autoplay loop muted playsinline preload="metadata"></video>
+                                    {% endif %}
+                                {% elif proj.thumbnail %}
+                                    <img src="{{ proj.thumbnail.url }}" alt="{{ proj.title }}" class="showcase-img" loading="lazy">
+                                {% else %}
+                                    <div class="showcase-thumb-fallback">
+                                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                                        <span>{{ proj.title }}</span>
+                                    </div>
+                                {% endif %}
+                                <span class="showcase-cat-pill">{{ proj.get_category_display }}</span>
+                                <span class="showcase-hover-play">▶ Ver Arte</span>
+                            </div>
+
+                            <div class="showcase-body">
+                                <h5>{{ proj.title }}</h5>
+                                <div class="showcase-footer">
+                                    <span class="showcase-creator">@{{ proj.author.username }}</span>
+                                    <span class="showcase-likes">❤️ {{ proj.total_likes }}</span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="showcase-cta-bottom">
+                    <a href="{% url 'home' %}" class="btn-more-projects">Acessar Feed Completo com Todas as Criações →</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO 4: CATEGORIAS & SOFTWARES POPULARES -->
+        <section class="landing-tools-section">
+            <div class="section-container">
+                <h3>Softwares & Especialidades Mais Buscados</h3>
+                <p>Encontre especialistas prontos para tirar seu projeto do papel.</p>
+                <div class="tools-tags-cloud">
+                    {% for tag in popular_tags %}
+                    <a href="{% url 'home' %}" class="tool-tag-pill">
+                        <span class="tool-icon">{{ tag.icon }}</span>
+                        <span class="tool-name">{{ tag.name }}</span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO 5: CALL TO ACTION FINAL -->
+        <section class="landing-final-cta">
+            <div class="section-container cta-banner-box">
+                <h2>Pronto para fazer parte da comunidade?</h2>
+                <p>Crie seu portfólio profissional em minutos, receba propostas de trabalho e conecte-se com clientes do mundo todo.</p>
+                <div class="final-cta-buttons">
+                    <a href="{% url 'cadastro' %}" class="btn-main-access">Cadastre-se Gratuitamente</a>
+                    <a href="{% url 'login' %}" class="btn-main-access btn-ghost-white">Já tenho uma conta</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- RODAPÉ COMPLETO -->
+        <footer class="landing-footer">
+            <div class="footer-container">
+                <div class="footer-brand">
+                    <div class="logo">
+                        <img src="{% static 'images/artflow-logo.png' %}" alt="ArtFlow Logo" class="brand-logo-img">
+                        <h2>ArtFlow</h2>
+                        <span>| Motion</span>
+                    </div>
+                    <p>A plataforma definitiva para Motion Designers, Artistas 3D, Criadores Audiovisuais e Clientes.</p>
+                </div>
+
+                <div class="footer-links-group">
+                    <h4>Plataforma</h4>
+                    <a href="{% url 'home' %}">Explorar Feed</a>
+                    <a href="{% url 'login' %}">Login</a>
+                    <a href="{% url 'cadastro' %}">Cadastro de Artista</a>
+                </div>
+
+                <div class="footer-links-group">
+                    <h4>Categorias</h4>
+                    <a href="{% url 'home' %}">Animação 3D</a>
+                    <a href="{% url 'home' %}">Motion 2D & Loops</a>
+                    <a href="{% url 'home' %}">VFX & Shaders</a>
+                    <a href="{% url 'home' %}">Tipografia Cinética</a>
+                </div>
+
+                <div class="footer-links-group">
+                    <h4>Preferências</h4>
+                    <button class="footer-theme-toggle" onclick="toggleTheme()">
+                        <span class="theme-icon icon-sun">☀️</span>
+                        <span class="theme-icon icon-moon">🌙</span>
+                        <span id="footerThemeLabel">Alternar Tema</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="footer-bottom-bar">
+                <p>&copy; 2026 ArtFlow. Todos os direitos reservados. Feito para a comunidade criativa.</p>
+            </div>
+        </footer>
+
         {% endblock conteudo_principal %}
     </main>
 
+    <!-- SCRIPT GLOBAL DO MODO CLARO / ESCURO -->
+    <script>
+        function applyTheme(theme) {
+            if (theme === 'light') {
+                document.documentElement.setAttribute('data-theme', 'light');
+                document.body.classList.add('light-mode');
+                localStorage.setItem('artflow_theme', 'light');
+                updateThemeToggleIcons('light');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.body.classList.remove('light-mode');
+                localStorage.setItem('artflow_theme', 'dark');
+                updateThemeToggleIcons('dark');
+            }
+        }
+
+        function toggleTheme() {
+            var currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+            var newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            applyTheme(newTheme);
+        }
+
+        function updateThemeToggleIcons(theme) {
+            document.querySelectorAll('.theme-icon.icon-sun').forEach(function(el) {
+                el.style.display = theme === 'light' ? 'none' : 'inline-block';
+            });
+            document.querySelectorAll('.theme-icon.icon-moon').forEach(function(el) {
+                el.style.display = theme === 'light' ? 'inline-block' : 'none';
+            });
+            var footerLabel = document.getElementById('footerThemeLabel');
+            if (footerLabel) {
+                footerLabel.textContent = theme === 'light' ? 'Modo Escuro' : 'Modo Claro';
+            }
+        }
+
+        // Inicializar botões ao carregar o DOM
+        document.addEventListener('DOMContentLoaded', function() {
+            var savedTheme = localStorage.getItem('artflow_theme');
+            if (!savedTheme) {
+                savedTheme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+            }
+            applyTheme(savedTheme);
+
+            var floatingBtn = document.getElementById('floatingThemeToggle');
+            if (floatingBtn) {
+                floatingBtn.addEventListener('click', toggleTheme);
+            }
+        });
+    </script>
+
+    {% block extra_js %}{% endblock %}
 </body>
 
 </html>

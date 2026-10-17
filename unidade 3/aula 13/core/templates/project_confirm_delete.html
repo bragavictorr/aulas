@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Excluir {{ project.title }} | ArtFlow{% endblock %}
+
+{% block conteudo_principal %}
+<img src="{% static 'videos/avedeto-night.gif' %}" alt="Motion Background" class="background-motion-video">
+<div class="video-overlay"></div>
+
+<div class="auth-container">
+    <div class="auth-card" style="max-width: 500px; border-color: #ff4757; box-shadow: 10px 10px 0px rgba(255, 71, 87, 0.3);">
+        <a href="{% url 'project_detail' project.id %}" class="auth-back-link">← Cancelar e Voltar</a>
+        <h2 style="color: #ff4757; text-shadow: 0 0 12px rgba(255, 71, 87, 0.5);">REMOVER PROJETO</h2>
+        
+        <p style="color: #ffffff; font-size: 0.95rem; margin: 20px 0;">
+            Você está prestes a excluir permanentemente o projeto:
+            <br>
+            <strong style="color: #00ffcc; font-size: 1.1rem; display: block; margin-top: 8px;">"{{ project.title }}"</strong>
+        </p>
+
+        <form method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn-main-access" style="background: #ff4757; color: #ffffff; box-shadow: 6px 6px 0px rgba(255, 71, 87, 0.4);">
+                Confirmar Exclusão
+            </button>
+        </form>
+
+        <div style="margin-top: 20px;">
+            <a href="{% url 'project_detail' project.id %}" style="color: #888; text-decoration: none; font-size: 0.88rem;">
+                Voltar sem excluir
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock conteudo_principal %}
