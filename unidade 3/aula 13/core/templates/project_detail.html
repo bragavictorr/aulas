@@ -44,7 +44,7 @@
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
-        <input type="text" placeholder="Buscar no ArtFlow..." onclick="window.location.href='{% url 'home' %}'">
+        <input type="text" placeholder="Buscar por criadores, artes, 3D, VFX..." autocomplete="off">
     </div>
 
     <nav class="nav-links">
@@ -59,9 +59,105 @@
 
         <!-- Botão de Alternar Modo Claro/Escuro -->
         <button class="btn-theme-toggle nav-item-theme" onclick="toggleTheme()" title="Alternar Modo Claro / Modo Escuro">
-            <span class="theme-icon icon-sun">☀️</span>
-            <span class="theme-icon icon-moon">🌙</span>
+            <svg class="theme-icon icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg class="theme-icon icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
         </button>
+
+        <!-- Botão de Notificações com Dropdown Flutuante -->
+        <div class="notifications-dropdown-wrapper">
+            <button type="button" class="btn-notifications-bell" id="btnNotificationsBell" onclick="toggleNotificationsDropdown(event)" title="Notificações">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                {% if unread_notifications_count > 0 %}
+                    <span class="notification-badge-count" id="notifBadgeCount">{{ unread_notifications_count }}</span>
+                {% endif %}
+            </button>
+            <div class="notifications-dropdown-menu" id="notificationsDropdownMenu" style="display: none;">
+                <div class="notif-menu-header">
+                    <div class="notif-menu-title-wrap">
+                        <span class="notif-header-icon-box">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                            </svg>
+                        </span>
+                        <div>
+                            <span class="notif-menu-title">Notificações</span>
+                            <span class="notif-menu-subtitle">Atualizações do seu perfil</span>
+                        </div>
+                    </div>
+                    <div class="notif-header-actions">
+                        {% if unread_notifications_count > 0 %}
+                            <button type="button" class="btn-mark-all-read" onclick="markAllNotificationsAsRead(event)" title="Marcar todas como lidas">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                <span>Lidas</span>
+                            </button>
+                        {% endif %}
+                        {% if recent_notifications %}
+                            <button type="button" class="btn-clear-all-notifs" onclick="clearAllNotifications(event)" title="Apagar todas as notificações">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                <span>Limpar</span>
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="notif-list-container">
+                    {% for notif in recent_notifications %}
+                        <div class="notif-item-wrapper" id="notif-item-{{ notif.id }}">
+                            <a href="{% url 'mark_single_notification_read' notif.id %}" class="notif-item {% if not notif.is_read %}unread{% endif %}">
+                                <div class="notif-avatar-wrapper">
+                                    {% if notif.sender.profile.avatar %}
+                                        <img src="{{ notif.sender.profile.avatar.url }}" alt="{{ notif.sender.username }}" class="notif-sender-avatar">
+                                    {% else %}
+                                        <div class="notif-sender-ph">{{ notif.sender.username|slice:":1"|upper }}</div>
+                                    {% endif %}
+                                    <span class="notif-type-dot"></span>
+                                </div>
+                                <div class="notif-content">
+                                    <div class="notif-title-row">
+                                        <span class="notif-title">{{ notif.title }}</span>
+                                    </div>
+                                    <div class="notif-subtext">{{ notif.message }}</div>
+                                    <span class="notif-time">{{ notif.created_at|timesince }} atrás</span>
+                                </div>
+                            </a>
+                            <button type="button" class="btn-delete-single-notif" onclick="deleteNotification(event, '{{ notif.id }}', this)" title="Excluir notificação">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    {% empty %}
+                        <div class="notif-empty" id="notifEmptyState">
+                            <div class="notif-empty-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                                    <line x1="2" y1="2" x2="22" y2="22"></line>
+                                </svg>
+                            </div>
+                            <h4>Tudo limpo por aqui!</h4>
+                            <p>Você não tem notificações pendentes.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
 
         <a href="{% url 'profile' request.user.username %}" class="user-profile-badge-link" title="Meu Perfil">
             <div class="user-profile-badge">
@@ -333,17 +429,26 @@
                         {% if project.author.profile.avatar %}
                             <img src="{{ project.author.profile.avatar.url }}" alt="{{ project.author.username }}" class="creator-avatar-large">
                         {% else %}
-                            <div class="creator-avatar-large-ph">{{ project.author.username|slice:":2"|upper }}</div>
+                            <div class="creator-avatar-large-ph">{{ project.author.username|slice:":1"|upper }}</div>
                         {% endif %}
                     </a>
                     <div class="creator-names">
                         <h3>{{ project.author.first_name|default:project.author.username }}</h3>
                         <a href="{% url 'profile' project.author.username %}" class="creator-handle">@{{ project.author.username }}</a>
                         <span class="creator-spec">{{ project.author.profile.especialidade|default:"Motion Designer" }}</span>
+                        <div class="creator-followers-line" style="font-size: 0.82rem; color: var(--text-muted); margin-top: 5px;">
+                            <strong id="creatorDetailFollowersCount" style="color: var(--neon-cyan);">{{ author_followers_count }}</strong> seguidores
+                        </div>
                     </div>
                 </div>
 
                 <div class="creator-actions">
+                    {% if not is_owner %}
+                        <button type="button" class="btn-follow-toggle {% if is_following_author %}following{% endif %}" id="btnFollowCreatorDetail" onclick="toggleFollowCreatorDetail('{{ project.author.username }}')" style="width: 100%; justify-content: center; margin-bottom: 8px;">
+                            <span class="follow-icon">{% if is_following_author %}✓{% else %}+{% endif %}</span>
+                            <span class="follow-text" id="followCreatorDetailText">{% if is_following_author %}Seguindo{% else %}Seguir Criador{% endif %}</span>
+                        </button>
+                    {% endif %}
                     <a href="{% url 'profile' project.author.username %}" class="btn-view-portfolio">
                         Ver Portfólio Completo
                     </a>
@@ -366,74 +471,137 @@
                 </div>
             </div>
 
-            <!-- CARD DE COMPRA DO MOTION DESIGN / MODELO 3D / ASSET -->
-            <div class="buy-model-card" id="buyAreaCard" data-base-price="{{ project.price|stringformat:'.2f' }}">
-                <div class="buy-card-badge">MOTION DESIGN & ASSETS</div>
-                
-                <div class="buy-price-row">
-                    <span class="buy-currency">R$</span>
-                    <span class="buy-amount" id="displayBuyAmount">{{ project.price }}</span>
-                    <span class="buy-license-tag" id="displayLicenseTag">Licença Comercial</span>
-                </div>
+            {% if is_owner %}
+                <!-- PAINEL EXCLUSIVO DO CRIADOR / RESPONSÁVEL DA ARTE -->
+                <div class="buy-model-card owner-manage-card" id="buyAreaCard" data-base-price="{{ project.price|stringformat:'.2f' }}">
+                    <div class="buy-card-badge" style="background: rgba(0, 255, 204, 0.18);">PAINEL DO CRIADOR • CONTROLE DA ARTE</div>
+                    
+                    <div id="ownerSaleStatusBadge" class="owner-sale-status-badge {% if project.is_for_sale %}status-on-sale{% else %}status-portfolio-only{% endif %}">
+                        {% if project.is_for_sale %}
+                            <span class="status-dot dot-green"></span>
+                            <strong id="ownerSaleStatusText">🟢 Arte à Venda por R$ {{ project.price|floatformat:2 }}</strong>
+                        {% else %}
+                            <span class="status-dot dot-gray"></span>
+                            <strong id="ownerSaleStatusText">⚪ Obra em Exibição (Apenas Portfólio / Venda Desativada)</strong>
+                        {% endif %}
+                    </div>
 
-                {% if is_owner %}
-                    <!-- PAINEL EXCLUSIVO DO AUTOR PARA ESCOLHER / MUDAR O PREÇO DA ARTE -->
-                    <form method="POST" action="{% url 'update_project_price' project.id %}" class="owner-price-editor">
+                    <form method="POST" action="{% url 'update_project_price' project.id %}" class="owner-price-editor" id="ownerPriceEditorForm" novalidate>
                         {% csrf_token %}
                         <div class="price-editor-header">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-                            <span>Definir Preço da Arte</span>
-                        </div>
-                        
-                        <div class="price-quick-chips">
-                            <button type="button" class="price-chip-btn" onclick="setOwnerQuickPrice('29.90')">R$ 29,90</button>
-                            <button type="button" class="price-chip-btn" onclick="setOwnerQuickPrice('49.90')">R$ 49,90</button>
-                            <button type="button" class="price-chip-btn" onclick="setOwnerQuickPrice('99.90')">R$ 99,90</button>
-                            <button type="button" class="price-chip-btn" onclick="setOwnerQuickPrice('149.90')">R$ 149,90</button>
-                            <button type="button" class="price-chip-btn" onclick="setOwnerQuickPrice('249.90')">R$ 249,90</button>
-                            <button type="button" class="price-chip-btn" onclick="setOwnerQuickPrice('399.90')">R$ 399,90</button>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                            <span>Configuração de Venda da Arte</span>
                         </div>
 
-                        <div class="price-input-box">
-                            <span class="currency-prefix">R$</span>
-                            <input type="number" step="0.01" min="0" name="new_price" id="ownerPriceInput" value="{{ project.price|stringformat:'.2f' }}" class="price-number-field" placeholder="0,00" oninput="previewOwnerPrice(this.value)">
+                        <!-- Feedback dinâmico de salvamento -->
+                        <div id="ownerSaveFeedback" style="display: none; padding: 10px 14px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 12px; font-weight: 600;"></div>
+
+                        <!-- Opção de Venda via Toggle Switch Moderno & Fluido -->
+                        <div class="sale-checkbox-card" style="margin: 8px 0 16px;">
+                            <label class="sale-checkbox-label" for="ownerIsForSaleCheckbox">
+                                <div class="modern-toggle-wrapper">
+                                    <input type="checkbox" name="is_for_sale" id="ownerIsForSaleCheckbox" class="toggle-switch-input" value="true" {% if project.is_for_sale %}checked{% endif %} onchange="toggleOwnerSaleCheckbox(this.checked)">
+                                    <span class="modern-toggle-slider"></span>
+                                </div>
+                                <div class="sale-label-info">
+                                    <span class="sale-label-title">
+                                        <span>Colocar esta arte à venda</span>
+                                        <span class="badge-motion-tag">DISPONÍVEL</span>
+                                    </span>
+                                    <span class="sale-label-sub">Permite que clientes comprem e façam download dos arquivos do projeto (.blend, .aep, etc). Desmarcado = exibição exclusiva no portfólio.</span>
+                                </div>
+                            </label>
                         </div>
 
-                        <button type="submit" class="btn-save-price">
+                        <!-- Painel de Preço (visível quando Colocar à Venda estiver marcado) -->
+                        <div id="ownerPriceFieldsWrapper" class="price-collapse-box" style="{% if not project.is_for_sale %}display: none;{% endif %} margin-bottom: 14px;">
+                            <label for="ownerPriceInput" class="price-label">
+                                Definir Preço Base da Arte (R$)
+                            </label>
+                            <div class="price-input-wrapper" style="margin-bottom: 10px;">
+                                <span class="price-currency-tag">R$</span>
+                                <input type="text" inputmode="decimal" name="new_price" id="ownerPriceInput" value="{{ project.price|floatformat:2 }}" class="form-control-art price-number-input" placeholder="49,90" oninput="previewOwnerPrice(this.value)">
+                            </div>
+                            <div class="price-quick-chips">
+                                <button type="button" class="price-chip-btn" onclick="setOwnerQuickPrice('29.90')">R$ 29,90</button>
+                                <button type="button" class="price-chip-btn" onclick="setOwnerQuickPrice('49.90')">R$ 49,90</button>
+                                <button type="button" class="price-chip-btn" onclick="setOwnerQuickPrice('99.90')">R$ 99,90</button>
+                                <button type="button" class="price-chip-btn" onclick="setOwnerQuickPrice('149.90')">R$ 149,90</button>
+                                <button type="button" class="price-chip-btn" onclick="setOwnerQuickPrice('249.90')">R$ 249,90</button>
+                                <button type="button" class="price-chip-btn" onclick="setOwnerQuickPrice('399.90')">R$ 399,90</button>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-save-price" id="btnSaveOwnerConfig" style="margin-top: 10px;">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                            <span>Salvar Novo Preço</span>
+                            <span id="btnSaveOwnerConfigText">Salvar Configuração de Venda</span>
                         </button>
-                        <small class="price-editor-hint">Apenas você vê este painel. O cliente verá o preço salvo acima.</small>
                     </form>
-                {% endif %}
 
-                <p class="buy-includes-title">O que está incluído no download:</p>
-                <ul class="buy-features-list">
-                    <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Arquivos de projeto e render (.mp4, .aep, .blend)</li>
-                    <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Shaders, comps e texturas em alta resolução 4K</li>
-                    <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Cena completa configurada com iluminação</li>
-                    <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Licença comercial completa sem royalties</li>
-                </ul>
+                    <p class="buy-includes-title">Arquivos incluídos no pacote:</p>
+                    <ul class="buy-features-list">
+                        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Arquivos originais do projeto (.mp4, .aep, .blend)</li>
+                        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Shaders, comps e texturas em alta resolução</li>
+                        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Licença comercial vinculada à conta do comprador</li>
+                    </ul>
+                </div>
 
-                {% if is_owner %}
-                    <div class="buy-owner-notice">
-                        <span>Você é o criador desta obra — os clientes verão apenas o preço definido por você.</span>
-                    </div>
-                {% elif user_has_purchased %}
+            {% elif user_has_purchased %}
+                <!-- USUÁRIO JÁ ADQUIRIU O PROJETO -->
+                <div class="buy-model-card">
+                    <div class="buy-card-badge">ARQUIVOS LIBERADOS</div>
                     <div class="buy-purchased-box">
-                        <span class="purchased-check">Projeto Adquirido!</span>
-                        <p>Você tem acesso irrestrito aos arquivos desta animação.</p>
+                        <span class="purchased-check">✓ Projeto Adquirido!</span>
+                        <p>Você possui a licença comercial e tem acesso irrestrito aos arquivos desta criação.</p>
                         <button class="btn-download-assets" onclick="alert('Download dos arquivos de Motion Design iniciado!')">
                             Baixar Arquivos do Projeto (.ZIP)
                         </button>
                     </div>
-                {% else %}
+                </div>
+
+            {% elif project.is_for_sale and project.price > 0 %}
+                <!-- ARTE À VENDA (OUTRO USUÁRIO PODE COMPRAR) -->
+                <div class="buy-model-card" id="buyAreaCard" data-base-price="{{ project.price|stringformat:'.2f' }}">
+                    <div class="buy-card-badge">MOTION DESIGN & ASSETS</div>
+                    
+                    <div class="buy-price-row">
+                        <span class="buy-currency">R$</span>
+                        <span class="buy-amount" id="displayBuyAmount">{{ project.price }}</span>
+                        <span class="buy-license-tag" id="displayLicenseTag">Licença Comercial</span>
+                    </div>
+
+                    <p class="buy-includes-title">O que está incluído no download:</p>
+                    <ul class="buy-features-list">
+                        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Arquivos de projeto e render (.mp4, .aep, .blend)</li>
+                        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Shaders, comps e texturas em alta resolução 4K</li>
+                        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Cena completa configurada com iluminação</li>
+                        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Licença comercial completa sem royalties</li>
+                    </ul>
+
                     <button class="btn-buy-model-cta" onclick="openBuyModal()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
-                        <span>Comprar Motion / Modelo da Arte</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        <span>Comprar e Liberar Download dos Arquivos</span>
                     </button>
-                {% endif %}
-            </div>
+                </div>
+
+            {% else %}
+                <!-- ARTE NÃO ESTÁ À VENDA (APENAS PORTFÓLIO / EXIBIÇÃO) -->
+                <div class="portfolio-showcase-card">
+                    <div class="showcase-card-badge">✨ ARTE DE PORTFÓLIO</div>
+                    <h4>Obra Exclusiva para Apreciação</h4>
+                    <p>O criador compartilhou esta animação apenas para exibição na comunidade ArtFlow. Os arquivos originais e assets de projeto <strong>não estão à venda nem disponíveis para download</strong>.</p>
+                    
+                    <div class="showcase-portfolio-tip">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                        <span>Gostou do estilo visual? Entre em contato com @{{ project.author.username }} para propor uma parceria criativa ou solicitar um projeto sob medida.</span>
+                    </div>
+
+                    <button class="btn-collab-creator-direct" onclick="openCollabModal('@{{ project.author.username }}', '{{ project.author.username }}', '{{ project.id }}', '{{ project.title }}')">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><polyline points="16 11 18 13 22 9"></polyline></svg>
+                        <span>Propor Parceria com o Autor</span>
+                    </button>
+                </div>
+            {% endif %}
 
         </div>
 
@@ -442,16 +610,17 @@
 </div>
 
 <!-- ==========================================================================
-     MODAL DE COMPRA DO MOTION DESIGN / MODELO 3D / ASSET
+     MODAL DE DOWNLOAD DO MOTION DESIGN / MODELO 3D / ASSET (APENAS SE À VENDA)
      ========================================================================== -->
+{% if project.is_for_sale and not is_owner %}
 <div id="buyModelModal" class="hire-modal-backdrop" style="display: none;">
     <div class="hire-modal-card">
         <button class="modal-close-btn" onclick="closeBuyModal()">&times;</button>
         
         <div class="modal-header">
-            <span class="modal-badge">CHECKOUT SEGURO</span>
-            <h3>Adquirir Motion Design & Assets</h3>
-            <p>Confirme a compra do pacote de arquivos de <strong>{{ project.title }}</strong>.</p>
+            <span class="modal-badge">DOWNLOAD DE ARQUIVOS</span>
+            <h3>Obter Motion Design & Assets</h3>
+            <p>Confirme para liberar o acesso ao pacote de arquivos de <strong>{{ project.title }}</strong>.</p>
         </div>
 
         <form method="POST" action="{% url 'buy_project_model' project.id %}">
@@ -465,21 +634,25 @@
                     <span>Criador:</span>
                     <strong>@{{ project.author.username }}</strong>
                 </div>
+                {% if project.price %}
                 <div class="summary-item total-item">
-                    <span>Valor Total:</span>
+                    <span>Valor da Licença:</span>
                     <strong class="total-price">R$ {{ project.price }}</strong>
                 </div>
+                {% endif %}
             </div>
 
-            <div class="modal-actions">
-                <button type="button" class="btn-modal-cancel" onclick="closeBuyModal()">Cancelar</button>
-                <button type="submit" class="btn-modal-submit">
-                    Confirmar Compra e Liberar Download
+            <div class="modal-actions" style="display: flex; flex-direction: column; gap: 10px;">
+                <button type="submit" class="btn-modal-submit" style="background: linear-gradient(135deg, #0d9488 0%, #06b6d4 100%); color: #ffffff; border: 1px solid rgba(0, 255, 204, 0.4); font-weight: 700; padding: 14px 20px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    <span>Confirmar Compra e Liberar Download</span>
                 </button>
+                <button type="button" class="btn-modal-cancel" onclick="closeBuyModal()">Cancelar</button>
             </div>
         </form>
     </div>
 </div>
+{% endif %}
 
 <!-- ==========================================================================
      MODAL DE CONFIRMAÇÃO DE EXCLUSÃO DO PROJETO
@@ -542,8 +715,17 @@
                     <input type="text" name="project_title" class="form-control-art" value="Interesse no Projeto: {{ project.title }}" required>
                 </div>
                 <div class="form-group">
-                    <label for="id_budget">Orçamento Estimado</label>
-                    {{ hiring_form.budget }}
+                    <label for="id_budget">Orçamento Estimado (R$)</label>
+                    <div class="currency-input-wrapper">
+                        <span class="currency-prefix-badge">R$</span>
+                        <input type="text" name="budget" id="id_budget" class="form-control-art currency-real-input" placeholder="0,00" autocomplete="off" inputmode="numeric">
+                    </div>
+                    <div class="budget-suggestion-chips">
+                        <button type="button" class="budget-chip" onclick="applyQuickBudget(this, 'R$ 500,00')">R$ 500</button>
+                        <button type="button" class="budget-chip" onclick="applyQuickBudget(this, 'R$ 1.200,00')">R$ 1.200</button>
+                        <button type="button" class="budget-chip" onclick="applyQuickBudget(this, 'R$ 2.500,00')">R$ 2.500</button>
+                        <button type="button" class="budget-chip" onclick="applyQuickBudget(this, 'R$ 5.000,00')">R$ 5.000+</button>
+                    </div>
                 </div>
             </div>
 
@@ -722,13 +904,37 @@
         return num.toFixed(2).replace('.', ',');
     }
 
+    function toggleOwnerSaleCheckbox(isChecked) {
+        const priceBox = document.getElementById('ownerPriceFieldsWrapper');
+        const priceInput = document.getElementById('ownerPriceInput');
+
+        if (isChecked) {
+            if (priceBox) priceBox.style.display = 'block';
+            if (priceInput) {
+                if (!priceInput.value || priceInput.value === '0.00' || priceInput.value === '0' || priceInput.value === '0,00') {
+                    priceInput.value = '49,90';
+                    previewOwnerPrice('49,90');
+                }
+                priceInput.focus();
+            }
+        } else {
+            if (priceBox) priceBox.style.display = 'none';
+        }
+    }
+
     function setOwnerQuickPrice(priceStr) {
+        const checkbox = document.getElementById('ownerIsForSaleCheckbox');
+        if (checkbox && !checkbox.checked) {
+            checkbox.checked = true;
+            toggleOwnerSaleCheckbox(true);
+        }
         const input = document.getElementById('ownerPriceInput');
         const display = document.getElementById('displayBuyAmount');
-        if (input) input.value = priceStr;
-        if (display) display.textContent = formatPriceBR(priceStr);
+        const formatted = formatPriceBR(priceStr);
+        if (input) input.value = formatted;
+        if (display) display.textContent = formatted;
         document.querySelectorAll('.owner-price-editor .price-chip-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.textContent.includes(formatPriceBR(priceStr)));
+            btn.classList.toggle('active', btn.textContent.includes(formatted));
         });
     }
 
@@ -772,7 +978,7 @@
         }
     }
 
-    // Inicializa os valores das licenças Pro e Full no carregamento
+    // Inicializa valores e configura envio assíncrono do formulário de venda
     document.addEventListener('DOMContentLoaded', () => {
         const card = document.getElementById('buyAreaCard');
         if (card) {
@@ -784,7 +990,113 @@
             if (t2) t2.textContent = `R$ ${formatPriceBR(basePrice * 1.5)}`;
             if (t3) t3.textContent = `R$ ${formatPriceBR(basePrice * 2)}`;
         }
+
+        // Submissão fluida e instantânea da Configuração de Venda do Criador
+        const ownerForm = document.getElementById('ownerPriceEditorForm');
+        if (ownerForm) {
+            ownerForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById('btnSaveOwnerConfig');
+                const btnText = document.getElementById('btnSaveOwnerConfigText');
+                const feedback = document.getElementById('ownerSaveFeedback');
+                const statusBadge = document.getElementById('ownerSaleStatusBadge');
+                const statusText = document.getElementById('ownerSaleStatusText');
+                const buyCard = document.getElementById('buyAreaCard');
+
+                if (btn) btn.disabled = true;
+                if (btnText) btnText.textContent = 'Salvando alteração...';
+                if (feedback) feedback.style.display = 'none';
+
+                const formData = new FormData(ownerForm);
+
+                try {
+                    const resp = await fetch(ownerForm.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    const data = await resp.json();
+
+                    if (data.success) {
+                        if (btnText) btnText.textContent = '✓ Configuração Salva!';
+                        if (feedback) {
+                            feedback.style.display = 'block';
+                            feedback.style.background = 'rgba(16, 185, 129, 0.15)';
+                            feedback.style.border = '1px solid rgba(16, 185, 129, 0.45)';
+                            feedback.style.color = '#34d399';
+                            feedback.textContent = data.message;
+                        }
+
+                        if (statusBadge && statusText) {
+                            if (data.is_for_sale) {
+                                statusBadge.className = 'owner-sale-status-badge status-on-sale';
+                                statusText.innerHTML = `🟢 Arte à Venda por R$ ${data.formatted_price}`;
+                                if (buyCard) buyCard.setAttribute('data-base-price', data.price);
+                            } else {
+                                statusBadge.className = 'owner-sale-status-badge status-portfolio-only';
+                                statusText.innerHTML = '⚪ Obra em Exibição (Apenas Portfólio / Venda Desativada)';
+                            }
+                        }
+
+                        setTimeout(() => {
+                            if (btnText) btnText.textContent = 'Salvar Configuração de Venda';
+                            if (btn) btn.disabled = false;
+                        }, 2200);
+                    } else {
+                        throw new Error(data.error || 'Erro ao salvar configuração.');
+                    }
+                } catch (err) {
+                    console.warn('Submissão AJAX encontrou erro ou foi redirecionada. Aplicando fallback padrão...', err);
+                    ownerForm.submit();
+                }
+            });
+        }
     });
+
+    // Seguir / Deixar de Seguir Criador da Arte no Detalhe
+    async function toggleFollowCreatorDetail(username) {
+        const btn = document.getElementById('btnFollowCreatorDetail');
+        const textElem = document.getElementById('followCreatorDetailText');
+        const followersCountElem = document.getElementById('creatorDetailFollowersCount');
+        if (!btn) return;
+        btn.disabled = true;
+
+        try {
+            const resp = await fetch(`/perfil/${username}/seguir/`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Accept': 'application/json'
+                }
+            });
+            const data = await resp.json();
+            if (data.success) {
+                if (data.is_following) {
+                    btn.classList.add('following');
+                    if (textElem) textElem.textContent = 'Seguindo';
+                    const icon = btn.querySelector('.follow-icon');
+                    if (icon) icon.textContent = '✓';
+                } else {
+                    btn.classList.remove('following');
+                    if (textElem) textElem.textContent = 'Seguir Criador';
+                    const icon = btn.querySelector('.follow-icon');
+                    if (icon) icon.textContent = '+';
+                }
+                if (followersCountElem && data.followers_count !== undefined) {
+                    followersCountElem.textContent = data.followers_count;
+                }
+            }
+        } catch (err) {
+            console.error('Erro ao seguir criador no detalhe:', err);
+        } finally {
+            btn.disabled = false;
+        }
+    }
 
     // Modal de Compra
     function openBuyModal() {
@@ -792,6 +1104,11 @@
         const modalPriceInput = document.getElementById('modalSelectedPriceInput');
         if (customInput && modalPriceInput && customInput.value) {
             modalPriceInput.value = parseFloat(customInput.value).toFixed(2);
+        }
+        const display = document.getElementById('displayBuyAmount');
+        const modalTotal = document.querySelector('#buyModelModal .total-price');
+        if (display && modalTotal) {
+            modalTotal.textContent = `R$ ${display.textContent}`;
         }
         const modal = document.getElementById('buyModelModal');
         if (modal) modal.style.display = 'flex';
@@ -856,6 +1173,6 @@
                 m.style.display = 'none';
             }
         });
-    });
+    // Notificações gerenciadas globalmente em base.html
 </script>
 {% endblock extra_js %}

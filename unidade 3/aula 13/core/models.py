@@ -7,6 +7,7 @@ import uuid
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True, verbose_name="Foto de Perfil")
+    cover_image = models.ImageField(upload_to='covers/', blank=True, null=True, verbose_name="Capa / Banner do Perfil")
     bio = models.TextField(blank=True, max_length=500, verbose_name="Biografia")
     portfolio_url = models.URLField(blank=True, max_length=250, verbose_name="Link de Portfólio / GitHub")
     especialidade = models.CharField(
@@ -50,8 +51,8 @@ class Project(models.Model):
     likes_count = models.PositiveIntegerField(default=0, verbose_name="Contagem Base de Curtidas")
     saved_by = models.ManyToManyField(User, related_name='saved_projects', blank=True, verbose_name="Utilizadores que Salvaram")
     views_count = models.PositiveIntegerField(default=0, verbose_name="Visualizações")
-    price = models.DecimalField(max_digits=8, decimal_places=2, default=49.90, verbose_name="Preço do Modelo/Asset (R$)")
-    is_for_sale = models.BooleanField(default=True, verbose_name="Disponível para Compra")
+    price = models.DecimalField(max_digits=8, decimal_places=2, default=0.00, blank=True, null=True, verbose_name="Preço do Modelo/Asset (R$)")
+    is_for_sale = models.BooleanField(default=False, verbose_name="Disponível para Venda")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -168,6 +169,68 @@ class PartnershipMessage(models.Model):
 
     def __str__(self):
         return f"Mensagem de @{self.sender.username} na parceria #{self.partnership.id}"
+
+
+class UserSuggestion(models.Model):
+    SUGGESTION_TYPES = [
+        ('idea', 'Nova Ideia / Funcionalidade'),
+        ('improvement', 'Melhoria Visual ou UX'),
+        ('bug', 'Relato de Problema / Bug'),
+        ('other', 'Outra Sugestão'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='suggestions', verbose_name="Usuário")
+    name = models.CharField(max_length=120, blank=True, verbose_name="Nome")
+    email = models.EmailField(blank=True, verbose_name="E-mail de Contato")
+    suggestion_type = models.CharField(max_length=20, choices=SUGGESTION_TYPES, default='idea', verbose_name="Categoria")
+    title = models.CharField(max_length=160, verbose_name="Título da Sugestão")
+    message = models.TextField(verbose_name="Detalhes da Sugestão")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Data de Envio")
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        user_str = f"@{self.user.username}" if self.user else (self.name or "Anônimo")
+        return f"[{self.get_suggestion_type_display()}] {self.title} por {user_str}"
+
+
+class UserFollow(models.Model):
+    follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name='following_relations', verbose_name="Seguidor")
+    following = models.ForeignKey(User, on_delete=models.CASCADE, related_name='followers_relations', verbose_name="Criador Seguido")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Seguindo desde")
+
+    class Meta:
+        unique_together = ('follower', 'following')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"@{self.follower.username} segue @{self.following.username}"
+
+
+class Notification(models.Model):
+    NOTIFICATION_TYPES = [
+        ('follow', 'Novo Seguidor'),
+        ('like', 'Curtida'),
+        ('comment', 'Comentário'),
+        ('partnership', 'Parceria'),
+        ('sale', 'Venda'),
+    ]
+
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications', verbose_name="Destinatário")
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_notifications', verbose_name="Remetente")
+    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES, default='follow', verbose_name="Tipo")
+    title = models.CharField(max_length=200, verbose_name="Título")
+    message = models.TextField(verbose_name="Mensagem")
+    link = models.CharField(max_length=255, blank=True, verbose_name="Link de Destino")
+    is_read = models.BooleanField(default=False, verbose_name="Lida")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Data de Notificação")
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Notificação para @{self.recipient.username}: {self.title}"
 
 
 # Signal para criação automática do UserProfile quando um User for cadastrado

@@ -1,5 +1,8 @@
 from django.contrib import admin
-from .models import UserProfile, Project, HiringRequest, ProjectComment, ProjectPurchase, PartnershipProposal, PartnershipMessage
+from .models import (
+    UserProfile, Project, HiringRequest, ProjectComment, ProjectPurchase,
+    PartnershipProposal, PartnershipMessage, UserSuggestion, UserFollow, Notification
+)
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
@@ -40,4 +43,26 @@ class PartnershipProposalAdmin(admin.ModelAdmin):
 class PartnershipMessageAdmin(admin.ModelAdmin):
     list_display = ('partnership', 'sender', 'created_at')
     search_fields = ('sender__username', 'text', 'partnership__title')
+
+@admin.register(UserSuggestion)
+class UserSuggestionAdmin(admin.ModelAdmin):
+    list_display = ('title', 'suggestion_type', 'user', 'name', 'created_at')
+    list_filter = ('suggestion_type', 'created_at')
+    search_fields = ('title', 'message', 'name', 'email', 'user__username')
+
+
+@admin.register(UserFollow)
+class UserFollowAdmin(admin.ModelAdmin):
+    list_display = ('follower', 'following', 'created_at')
+    search_fields = ('follower__username', 'following__username')
+    list_filter = ('created_at',)
+
+
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ('recipient', 'sender', 'notification_type', 'title', 'is_read', 'created_at')
+    list_filter = ('notification_type', 'is_read', 'created_at')
+    search_fields = ('recipient__username', 'sender__username', 'title', 'message')
+
+
 

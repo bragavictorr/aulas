@@ -44,7 +44,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=18">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=22">
     <link rel="icon" type="image/png" href="{% static 'images/artflow-logo.png' %}">
     {% block extra_css %}{% endblock %}
 </head>
@@ -73,8 +73,20 @@
 
                 <div class="hero-nav-actions">
                     <button class="btn-theme-toggle header-theme-btn" onclick="toggleTheme()" title="Alternar Modo Claro/Escuro">
-                        <span class="theme-icon icon-sun">☀️</span>
-                        <span class="theme-icon icon-moon">🌙</span>
+                        <svg class="theme-icon icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                        <svg class="theme-icon icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
                     </button>
                     <a href="{% url 'home' %}" class="hero-nav-link">Explorar Artes</a>
                     <a href="{% url 'login' %}" class="hero-nav-link btn-ghost-login">Entrar</a>
@@ -111,23 +123,23 @@
 
         </section>
 
-        <!-- SEÇÃO 1: MÉTRICAS SOCIAIS E IMPACTO DA COMUNIDADE -->
-        <section class="landing-metrics-strip">
+        <!-- SEÇÃO 1: MÉTRICAS SOCIAIS E IMPACTO DA COMUNIDADE (COUNTER UP ANIMATION) -->
+        <section class="landing-metrics-strip" id="landingMetricsStrip">
             <div class="metrics-grid">
                 <div class="metric-card">
-                    <div class="metric-number">+{{ total_creators }}</div>
+                    <div class="metric-number counter-up" data-target="{{ total_creators|default:8 }}" data-prefix="+" data-suffix="">+0</div>
                     <div class="metric-label">Motion Designers Ativos</div>
                 </div>
                 <div class="metric-card">
-                    <div class="metric-number">+{{ total_projects }}</div>
+                    <div class="metric-number counter-up" data-target="{{ total_projects|default:15 }}" data-prefix="+" data-suffix="">+0</div>
                     <div class="metric-label">Artes & Animações 3D/2D</div>
                 </div>
                 <div class="metric-card">
-                    <div class="metric-number">+{{ total_views }}</div>
+                    <div class="metric-number counter-up" data-target="{{ total_views|default:3420 }}" data-prefix="+" data-suffix="">+0</div>
                     <div class="metric-label">Visualizações na Comunidade</div>
                 </div>
                 <div class="metric-card">
-                    <div class="metric-number">100%</div>
+                    <div class="metric-number counter-up" data-target="100" data-prefix="" data-suffix="%">0%</div>
                     <div class="metric-label">Gratuito para Divulgação</div>
                 </div>
             </div>
@@ -138,8 +150,8 @@
         <section class="landing-featured-spotlight">
             <div class="section-container">
                 <div class="section-header-tag">
-                    <span class="spotlight-badge">⭐ MOTION EM DESTAQUE</span>
-                    <h3>A Criação em Alta na Plataforma</h3>
+                    <span class="spotlight-badge">⭐ MOTION EM DESTAQUE DA SEMANA</span>
+                    <h3>A Criação Mais Curtida da Semana</h3>
                 </div>
 
                 <div class="spotlight-card">
@@ -178,8 +190,10 @@
 
                         <div class="spotlight-stats">
                             <span>❤️ <strong>{{ motion_of_the_day.total_likes }}</strong> curtidas</span>
-                            {% if motion_of_the_day.is_for_sale %}
+                            {% if motion_of_the_day.is_for_sale and motion_of_the_day.price > 0 %}
                                 <span class="badge-price">R$ {{ motion_of_the_day.price }}</span>
+                            {% else %}
+                                <span class="badge-price" style="background: rgba(0, 255, 204, 0.12); color: var(--neon-cyan); border-color: rgba(0, 255, 204, 0.3);">✨ Obra em Exibição</span>
                             {% endif %}
                         </div>
 
@@ -303,8 +317,20 @@
                 <div class="footer-links-group">
                     <h4>Preferências</h4>
                     <button class="footer-theme-toggle" onclick="toggleTheme()">
-                        <span class="theme-icon icon-sun">☀️</span>
-                        <span class="theme-icon icon-moon">🌙</span>
+                        <svg class="theme-icon icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                        <svg class="theme-icon icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
                         <span id="footerThemeLabel">Alternar Tema</span>
                     </button>
                 </div>
@@ -366,7 +392,641 @@
                 floatingBtn.addEventListener('click', toggleTheme);
             }
         });
+
+        // =====================================================================
+        // SISTEMA GLOBAL DE BUSCA EM TEMPO REAL (CRIADORES CADASTRADOS & ARTES)
+        // =====================================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            var searchBars = document.querySelectorAll('.search-bar');
+            
+            searchBars.forEach(function(bar) {
+                var input = bar.querySelector('input');
+                if (!input) return;
+
+                // No Feed (#searchInput), a busca filtra a página e exibe os criadores diretamente no layout,
+                // evitando que um dropdown flutuante cubra a tela e cause bugs visuais.
+                if (input.id === 'searchInput') return;
+
+                // Garante a existência do elemento de dropdown nas páginas sem feed (Perfil, Detalhe)
+                var dropdown = bar.querySelector('.search-results-dropdown');
+                if (!dropdown) {
+                    dropdown = document.createElement('div');
+                    dropdown.className = 'search-results-dropdown';
+                    bar.appendChild(dropdown);
+                }
+
+                var debounceTimer = null;
+                var currentReqId = 0;
+
+                function executeSearch(query) {
+                    query = (query || '').trim();
+                    if (!query) {
+                        dropdown.style.display = 'none';
+                        dropdown.innerHTML = '';
+                        return;
+                    }
+
+                    var reqId = ++currentReqId;
+
+                    fetch('/api/buscar/?q=' + encodeURIComponent(query))
+                        .then(function(res) { return res.json(); })
+                        .then(function(data) {
+                            if (reqId !== currentReqId) return; // Ignora respostas desatualizadas
+                            renderSearchResults(data, query, dropdown);
+                        })
+                        .catch(function(err) {
+                            console.error('Erro na busca:', err);
+                        });
+                }
+
+                input.addEventListener('input', function(e) {
+                    clearTimeout(debounceTimer);
+                    var q = e.target.value;
+                    debounceTimer = setTimeout(function() {
+                        executeSearch(q);
+                    }, 180);
+                });
+
+                input.addEventListener('focus', function(e) {
+                    if (e.target.value.trim().length > 0) {
+                        executeSearch(e.target.value);
+                    }
+                });
+
+                // Atalho Enter para navegar
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        var firstItem = dropdown.querySelector('.search-item');
+                        if (firstItem && dropdown.style.display === 'block') {
+                            window.location.href = firstItem.getAttribute('href');
+                        } else if (input.value.trim()) {
+                            window.location.href = '/feed/?q=' + encodeURIComponent(input.value.trim());
+                        }
+                    }
+                });
+            });
+
+            function renderSearchResults(data, query, dropdown) {
+                var users = data.users || [];
+
+                if (users.length === 0) {
+                    dropdown.innerHTML = '<div class="search-empty-dropdown">Nenhum perfil encontrado para "<strong>' + escapeHtml(query) + '</strong>".</div>';
+                    dropdown.style.display = 'block';
+                    return;
+                }
+
+                var html = '';
+                html += '<div class="search-dropdown-section">';
+                html += '  <div class="search-dropdown-title">👤 Perfis Encontrados (' + users.length + ')</div>';
+                users.forEach(function(u) {
+                    var avatarHtml = '';
+                    if (u.avatar_url) {
+                        avatarHtml = '<img src="' + escapeHtml(u.avatar_url) + '" alt="' + escapeHtml(u.username) + '" class="search-user-avatar" style="width: 42px; height: 42px; min-width: 42px; min-height: 42px; max-width: 42px; max-height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid var(--neon-cyan); flex-shrink: 0;">';
+                    } else {
+                        avatarHtml = '<div class="search-user-avatar-placeholder" style="width: 42px; height: 42px; min-width: 42px; min-height: 42px; border-radius: 50%; background: linear-gradient(135deg, var(--neon-cyan), #3b82f6); color: #0b0f19; font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">' + escapeHtml(u.initials) + '</div>';
+                    }
+
+                    var projectsBadge = u.projects_count > 0 
+                        ? '<span class="search-badge-count">' + u.projects_count + ' projeto' + (u.projects_count > 1 ? 's' : '') + '</span>' 
+                        : '<span class="search-badge-count" style="opacity: 0.7;">Novo membro</span>';
+
+                    html += '<a href="' + escapeHtml(u.profile_url) + '" class="search-item search-user-item">';
+                    html += avatarHtml;
+                    html += '  <div class="search-info">';
+                    html += '    <div class="search-name">' + escapeHtml(u.name) + ' <span style="color: var(--neon-cyan); font-size: 0.8rem; font-weight: normal;">@' + escapeHtml(u.username) + '</span></div>';
+                    html += '    <div class="search-meta">' + escapeHtml(u.especialidade) + ' &bull; ' + projectsBadge + '</div>';
+                    html += '  </div>';
+                    html += '</a>';
+                });
+                html += '</div>';
+
+                dropdown.innerHTML = html;
+                dropdown.style.display = 'block';
+            }
+
+            function escapeHtml(str) {
+                if (!str) return '';
+                return String(str)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
+
+            // Fechar dropdown ao clicar fora
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.search-bar')) {
+                    document.querySelectorAll('.search-results-dropdown').forEach(function(d) {
+                        d.style.display = 'none';
+                    });
+                }
+            });
+        });
+
+        // =====================================================================
+        // MÁSCARA AUTOMÁTICA DE MOEDA EM REAL (R$ 0,00) PARA ORÇAMENTOS E VALORES
+        // =====================================================================
+        function formatToBRLCurrency(val) {
+            if (!val) return '';
+            var strVal = String(val);
+            if (strVal.startsWith('R$') && strVal.includes(',')) {
+                return strVal;
+            }
+            var digits = strVal.replace(/\D/g, '');
+            if (!digits) return '';
+            var intVal = parseInt(digits, 10);
+            var num = intVal / 100;
+            return num.toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            });
+        }
+
+        function applyCurrencyMaskToInput(input) {
+            if (!input || input.dataset.maskBound === 'true') return;
+            input.dataset.maskBound = 'true';
+
+            function formatOnInput() {
+                var raw = input.value.replace(/\D/g, '');
+                if (!raw) {
+                    input.value = '';
+                    return;
+                }
+                var number = parseInt(raw, 10) / 100;
+                input.value = number.toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL'
+                });
+            }
+
+            input.addEventListener('input', formatOnInput);
+
+            input.addEventListener('blur', function() {
+                var raw = input.value.replace(/\D/g, '');
+                if (!raw) {
+                    input.value = '';
+                    return;
+                }
+                if (!input.value.startsWith('R$')) {
+                    formatOnInput();
+                }
+            });
+
+            input.addEventListener('focus', function() {
+                if (!input.value) {
+                    input.placeholder = 'R$ 0,00';
+                }
+            });
+
+            if (input.value && !input.value.startsWith('R$')) {
+                formatOnInput();
+            }
+        }
+
+        function initAllCurrencyInputs() {
+            var inputs = document.querySelectorAll('input[name="budget"], #id_budget, .currency-mask-input, .currency-real-input');
+            inputs.forEach(applyCurrencyMaskToInput);
+        }
+
+        function applyQuickBudget(btn, value) {
+            var container = btn.closest('.hire-modal-card') || btn.closest('form');
+            if (!container) return;
+            var input = container.querySelector('input[name="budget"], .currency-real-input, #id_budget');
+            if (input) {
+                input.value = value;
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                input.focus();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initAllCurrencyInputs);
+
+        var domObserver = new MutationObserver(function() {
+            initAllCurrencyInputs();
+        });
+        domObserver.observe(document.body, { childList: true, subtree: true });
+
+        // =====================================================================
+        // NUMBER COUNTING ANIMATION | COUNTER UP ANIMATION (HTML CSS & JS)
+        // =====================================================================
+        function initCounterUpAnimation() {
+            var counters = document.querySelectorAll('.counter-up');
+            if (!counters.length) return;
+
+            var hasAnimated = false;
+
+            function runCounter() {
+                if (hasAnimated) return;
+                hasAnimated = true;
+
+                counters.forEach(function(counter) {
+                    var target = parseInt(counter.getAttribute('data-target'), 10) || 0;
+                    var prefix = counter.getAttribute('data-prefix') || '';
+                    var suffix = counter.getAttribute('data-suffix') || '';
+                    var duration = 1800; // 1.8 segundos
+                    var startTime = null;
+
+                    function step(timestamp) {
+                        if (!startTime) startTime = timestamp;
+                        var progress = Math.min((timestamp - startTime) / duration, 1);
+                        // Easing out cubic
+                        var easeOut = 1 - Math.pow(1 - progress, 3);
+                        var currentVal = Math.floor(easeOut * target);
+
+                        counter.textContent = prefix + currentVal.toLocaleString('pt-BR') + suffix;
+
+                        if (progress < 1) {
+                            window.requestAnimationFrame(step);
+                        } else {
+                            counter.textContent = prefix + target.toLocaleString('pt-BR') + suffix;
+                        }
+                    }
+
+                    window.requestAnimationFrame(step);
+                });
+            }
+
+            var strip = document.getElementById('landingMetricsStrip');
+            if (strip && 'IntersectionObserver' in window) {
+                var observer = new IntersectionObserver(function(entries, obs) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            runCounter();
+                            obs.disconnect();
+                        }
+                    });
+                }, { threshold: 0.2 });
+                observer.observe(strip);
+            } else {
+                runCounter();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initCounterUpAnimation);
     </script>
+
+    <!-- CONTAINER GLOBAL DE NOTIFICAÇÕES TOAST EM TEMPO REAL -->
+    <div id="notificationToastContainer" class="notif-toast-container"></div>
+
+    {% if request.user.is_authenticated %}
+    <!-- SISTEMA GLOBAL DE NOTIFICAÇÕES EM TEMPO REAL & DROPDOWN -->
+    <script>
+        (function() {
+            // Gerador de Som Suave com Web Audio API
+            function playNotificationSound() {
+                try {
+                    var AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (!AudioContext) return;
+                    var ctx = new AudioContext();
+                    var now = ctx.currentTime;
+                    
+                    var osc = ctx.createOscillator();
+                    var gain = ctx.createGain();
+
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(587.33, now); // D5
+                    osc.frequency.exponentialRampToValueAtTime(880.00, now + 0.14); // A5
+
+                    gain.gain.setValueAtTime(0.09, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                } catch(e) {}
+            }
+
+            // Exibir Toast Flutuante na tela
+            function showNotificationToast(notif) {
+                var container = document.getElementById('notificationToastContainer');
+                if (!container) return;
+
+                var toast = document.createElement('div');
+                toast.className = 'notif-toast-card';
+                
+                var avatarHtml = notif.sender_avatar ? 
+                    '<img src="' + notif.sender_avatar + '" alt="' + notif.sender_username + '" class="toast-avatar-img">' : 
+                    '<div class="toast-avatar-initial">' + (notif.sender_initial || '?') + '</div>';
+
+                toast.innerHTML = 
+                    '<div class="toast-avatar-col">' + avatarHtml + '</div>' +
+                    '<div class="toast-body-col">' +
+                        '<div class="toast-badge-tag">NOVA NOTIFICAÇÃO</div>' +
+                        '<div class="toast-title">' + (notif.title || 'Nova notificação') + '</div>' +
+                        '<div class="toast-text">' + (notif.message || 'Começou a te seguir no ArtFlow.') + '</div>' +
+                    '</div>' +
+                    '<button class="toast-close-btn" title="Fechar">&times;</button>';
+
+                toast.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('toast-close-btn')) {
+                        e.stopPropagation();
+                        removeToast(toast);
+                        return;
+                    }
+                    window.location.href = '/notificacoes/' + notif.id + '/ler/';
+                });
+
+                var closeBtn = toast.querySelector('.toast-close-btn');
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        removeToast(toast);
+                    });
+                }
+
+                container.appendChild(toast);
+                playNotificationSound();
+
+                setTimeout(function() {
+                    removeToast(toast);
+                }, 6500);
+            }
+
+            function removeToast(toast) {
+                toast.classList.add('fade-out');
+                setTimeout(function() {
+                    if (toast.parentNode) toast.parentNode.removeChild(toast);
+                }, 350);
+            }
+
+            // Polling de Notificações em Tempo Real (a cada 4.5s)
+            var seenNotifIds = new Set();
+            var isFirstCheck = true;
+
+            // Coleta notificações já pré-renderizadas no HTML
+            document.querySelectorAll('.notif-item').forEach(function(el) {
+                var href = el.getAttribute('href') || '';
+                var match = href.match(/\/notificacoes\/(\d+)\//);
+                if (match) seenNotifIds.add(parseInt(match[1]));
+            });
+
+            async function checkLiveNotifications() {
+                try {
+                    var res = await fetch('/api/notificacoes/recentes/', {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+                    if (!res.ok) return;
+                    var data = await res.json();
+                    if (data.status !== 'ok') return;
+
+                    // Atualiza Badge do Sino
+                    var badge = document.getElementById('notifBadgeCount');
+                    var bells = document.querySelectorAll('.btn-notifications-bell');
+
+                    if (data.unread_count > 0) {
+                        if (badge) {
+                            badge.textContent = data.unread_count;
+                            badge.style.display = 'inline-block';
+                        } else {
+                            bells.forEach(function(bell) {
+                                var newBadge = document.createElement('span');
+                                newBadge.className = 'notification-badge-count';
+                                newBadge.id = 'notifBadgeCount';
+                                newBadge.textContent = data.unread_count;
+                                bell.appendChild(newBadge);
+                            });
+                        }
+                    } else {
+                        if (badge) badge.style.display = 'none';
+                    }
+
+                    // Se há notificações retornadas
+                    if (data.notifications && data.notifications.length > 0) {
+                        data.notifications.forEach(function(notif) {
+                            if (!seenNotifIds.has(notif.id)) {
+                                seenNotifIds.add(notif.id);
+                                if (!isFirstCheck && !notif.is_read) {
+                                    showNotificationToast(notif);
+                                    prependNotifToMenu(notif);
+                                }
+                            }
+                        });
+                    }
+
+                    isFirstCheck = false;
+                } catch(err) {
+                    // Ignora falhas temporárias de conexão
+                }
+            }
+
+            function prependNotifToMenu(notif) {
+                var listContainer = document.querySelector('.notif-list-container');
+                if (!listContainer) return;
+
+                var emptyMsg = listContainer.querySelector('.notif-empty');
+                if (emptyMsg) emptyMsg.remove();
+
+                var wrapper = document.createElement('div');
+                wrapper.className = 'notif-item-wrapper';
+                wrapper.id = 'notif-item-' + notif.id;
+
+                var avatarHtml = notif.sender_avatar ?
+                    '<img src="' + notif.sender_avatar + '" alt="' + notif.sender_username + '" class="notif-sender-avatar">' :
+                    '<div class="notif-sender-ph">' + (notif.sender_initial || '?') + '</div>';
+
+                wrapper.innerHTML = 
+                    '<a href="/notificacoes/' + notif.id + '/ler/" class="notif-item unread">' +
+                        '<div class="notif-avatar-wrapper">' +
+                            avatarHtml +
+                            '<span class="notif-type-dot"></span>' +
+                        '</div>' +
+                        '<div class="notif-content">' +
+                            '<div class="notif-title-row">' +
+                                '<span class="notif-title">' + notif.title + '</span>' +
+                            '</div>' +
+                            '<div class="notif-subtext">' + (notif.message || '') + '</div>' +
+                            '<span class="notif-time">' + notif.created_at + '</span>' +
+                        '</div>' +
+                    '</a>' +
+                    '<button type="button" class="btn-delete-single-notif" onclick="deleteNotification(event, \'' + notif.id + '\', this)" title="Excluir notificação">' +
+                        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' +
+                            '<line x1="18" y1="6" x2="6" y2="18"></line>' +
+                            '<line x1="6" y1="6" x2="18" y2="18"></line>' +
+                        '</svg>' +
+                    '</button>';
+
+                listContainer.insertBefore(wrapper, listContainer.firstChild);
+
+                var markBtn = document.querySelector('.btn-mark-all-read');
+                if (markBtn) markBtn.style.display = 'inline-block';
+                var clearBtn = document.querySelector('.btn-clear-all-notifs');
+                if (clearBtn) clearBtn.style.display = 'inline-block';
+            }
+
+            // Excluir Notificação Individual
+            window.deleteNotification = async function(event, notifId, btn) {
+                if (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+
+                var wrapper = btn ? btn.closest('.notif-item-wrapper') : document.getElementById('notif-item-' + notifId);
+                if (wrapper) {
+                    wrapper.classList.add('deleting');
+                }
+
+                try {
+                    var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+                    var res = await fetch('/notificacoes/' + notifId + '/excluir/', {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRFToken': csrfToken
+                        }
+                    });
+                    var data = await res.json();
+
+                    setTimeout(function() {
+                        if (wrapper && wrapper.parentNode) {
+                            wrapper.parentNode.removeChild(wrapper);
+                        }
+
+                        // Atualiza o contador do sino
+                        var badge = document.getElementById('notifBadgeCount');
+                        if (data && typeof data.unread_count !== 'undefined') {
+                            if (data.unread_count > 0 && badge) {
+                                badge.textContent = data.unread_count;
+                            } else if (badge) {
+                                badge.style.display = 'none';
+                            }
+                        }
+
+                        // Se não restar nenhuma notificação, exibe o estado vazio
+                        var listContainer = document.querySelector('.notif-list-container');
+                        if (listContainer && !listContainer.querySelector('.notif-item-wrapper')) {
+                            listContainer.innerHTML = 
+                                '<div class="notif-empty" id="notifEmptyState">' +
+                                    '<div class="notif-empty-icon">' +
+                                        '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                                            '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>' +
+                                            '<path d="M13.73 21a2 2 0 0 1-3.46 0"></path>' +
+                                            '<line x1="2" y1="2" x2="22" y2="22"></line>' +
+                                        '</svg>' +
+                                    '</div>' +
+                                    '<h4>Tudo limpo por aqui!</h4>' +
+                                    '<p>Você não tem notificações pendentes.</p>' +
+                                '</div>';
+                            var markBtn = document.querySelector('.btn-mark-all-read');
+                            if (markBtn) markBtn.style.display = 'none';
+                            var clearBtn = document.querySelector('.btn-clear-all-notifs');
+                            if (clearBtn) clearBtn.style.display = 'none';
+                        }
+                    }, 260);
+                } catch(err) {
+                    console.error('Erro ao excluir notificação:', err);
+                }
+            };
+
+            // Limpar Todas as Notificações
+            window.clearAllNotifications = async function(event) {
+                if (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+
+                var wrappers = document.querySelectorAll('.notif-item-wrapper');
+                wrappers.forEach(function(w) {
+                    w.classList.add('deleting');
+                });
+
+                try {
+                    var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+                    var res = await fetch('/notificacoes/limpar-tudo/', {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRFToken': csrfToken
+                        }
+                    });
+
+                    setTimeout(function() {
+                        var listContainer = document.querySelector('.notif-list-container');
+                        if (listContainer) {
+                            listContainer.innerHTML = 
+                                '<div class="notif-empty" id="notifEmptyState">' +
+                                    '<div class="notif-empty-icon">' +
+                                        '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                                            '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>' +
+                                            '<path d="M13.73 21a2 2 0 0 1-3.46 0"></path>' +
+                                            '<line x1="2" y1="2" x2="22" y2="22"></line>' +
+                                        '</svg>' +
+                                    '</div>' +
+                                    '<h4>Tudo limpo por aqui!</h4>' +
+                                    '<p>Você não tem notificações pendentes.</p>' +
+                                '</div>';
+                        }
+                        var badge = document.getElementById('notifBadgeCount');
+                        if (badge) badge.style.display = 'none';
+                        var markBtn = document.querySelector('.btn-mark-all-read');
+                        if (markBtn) markBtn.style.display = 'none';
+                        var clearBtn = document.querySelector('.btn-clear-all-notifs');
+                        if (clearBtn) clearBtn.style.display = 'none';
+                    }, 280);
+                } catch(err) {
+                    console.error('Erro ao limpar notificações:', err);
+                }
+            };
+
+            // Iniciar checagem imediata e loop a cada 4.5 segundos
+            setTimeout(checkLiveNotifications, 1000);
+            setInterval(checkLiveNotifications, 4500);
+
+            // Funções Globais para o Dropdown
+            window.toggleNotificationsDropdown = function(event) {
+                if (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                var menu = document.getElementById('notificationsDropdownMenu');
+                if (!menu) return;
+                menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+            };
+
+            window.markAllNotificationsAsRead = async function(event) {
+                if (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                try {
+                    var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+                    var res = await fetch('/notificacoes/marcar-lidas/', {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRFToken': csrfToken
+                        }
+                    });
+                    var data = await res.json();
+                    if (data.status === 'ok' || data.success) {
+                        var badge = document.getElementById('notifBadgeCount');
+                        if (badge) badge.style.display = 'none';
+                        document.querySelectorAll('.notif-item.unread').forEach(function(el) {
+                            el.classList.remove('unread');
+                        });
+                        var markBtn = document.querySelector('.btn-mark-all-read');
+                        if (markBtn) markBtn.style.display = 'none';
+                    }
+                } catch(e) {
+                    console.error('Erro ao marcar notificações:', e);
+                }
+            };
+
+            window.addEventListener('click', function(e) {
+                var menu = document.getElementById('notificationsDropdownMenu');
+                var bell = document.getElementById('btnNotificationsBell');
+                if (menu && menu.style.display === 'block') {
+                    if (!menu.contains(e.target) && (!bell || !bell.contains(e.target))) {
+                        menu.style.display = 'none';
+                    }
+                }
+            });
+        })();
+    </script>
+    {% endif %}
 
     {% block extra_js %}{% endblock %}
 </body>

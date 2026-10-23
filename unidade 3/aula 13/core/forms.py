@@ -2,7 +2,10 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
-from .models import UserProfile, HiringRequest, Project, ProjectComment, PartnershipProposal, PartnershipMessage
+from .models import (
+    UserProfile, HiringRequest, Project, ProjectComment,
+    PartnershipProposal, PartnershipMessage, UserSuggestion
+)
 
 class CustomUserCreationForm(UserCreationForm):
     username = forms.CharField(
@@ -27,11 +30,16 @@ class CustomUserCreationForm(UserCreationForm):
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ('avatar', 'especialidade', 'bio', 'portfolio_url', 'location', 'available_for_hire')
+        fields = ('avatar', 'cover_image', 'especialidade', 'bio', 'portfolio_url', 'location', 'available_for_hire')
         widgets = {
             'avatar': forms.FileInput(attrs={
                 'class': 'avatar-file-input',
                 'id': 'avatarFileInput',
+                'accept': 'image/*'
+            }),
+            'cover_image': forms.FileInput(attrs={
+                'class': 'avatar-file-input',
+                'id': 'coverFileInput',
                 'accept': 'image/*'
             }),
             'especialidade': forms.TextInput(attrs={
@@ -95,8 +103,9 @@ class HiringRequestForm(forms.ModelForm):
                 'required': 'required'
             }),
             'budget': forms.TextInput(attrs={
-                'class': 'form-control-art',
-                'placeholder': 'Ex: R$ 1.500 - R$ 3.000 / A combinar'
+                'class': 'form-control-art currency-mask-input',
+                'placeholder': 'R$ 0,00',
+                'autocomplete': 'off',
             }),
             'message': forms.Textarea(attrs={
                 'class': 'form-control-art',
@@ -115,26 +124,22 @@ class HiringRequestForm(forms.ModelForm):
 
 
 class ProjectForm(forms.ModelForm):
-    PREVIEW_STYLE_CHOICES = [
-        ('preview-cyber', 'Cyberpunk Neon (Ciano & Azul)'),
-        ('preview-retro', 'Vaporwave Retrô (Magenta & Roxo)'),
-        ('preview-vfx', 'VFX Shaders (Âmbar & Dourado)'),
-        ('preview-intro', 'Tipografia Cinética (Verde Neon)'),
-        ('preview-cinema', 'Cinema & TV (Púrpura Cósmica)'),
-        ('preview-mecha', '3D Mecha (Azul High-Tech)'),
-    ]
-
-    preview_style = forms.ChoiceField(
-        choices=PREVIEW_STYLE_CHOICES,
+    is_for_sale = forms.BooleanField(
         required=False,
-        initial='preview-cyber',
-        widget=forms.Select(attrs={'class': 'form-control-art'}),
-        label="Estilo Visual do Card"
+        initial=False,
+        label="Disponibilizar para venda / download de arquivos (Opcional)",
+        widget=forms.CheckboxInput(attrs={'id': 'id_is_for_sale', 'class': 'custom-sale-checkbox'})
+    )
+
+    duration = forms.CharField(
+        required=False,
+        initial='0:30',
+        widget=forms.HiddenInput()
     )
 
     class Meta:
         model = Project
-        fields = ('title', 'category', 'price', 'duration', 'preview_style', 'thumbnail', 'video_demo', 'description')
+        fields = ('title', 'category', 'is_for_sale', 'price', 'duration', 'video_demo', 'description')
         widgets = {
             'title': forms.TextInput(attrs={
                 'class': 'form-control-art',
@@ -144,17 +149,9 @@ class ProjectForm(forms.ModelForm):
             'category': forms.Select(attrs={'class': 'form-control-art'}),
             'price': forms.NumberInput(attrs={
                 'class': 'form-control-art',
-                'placeholder': 'Ex: 49.90',
+                'id': 'id_project_price',
+                'placeholder': '0.00 (Opcional - deixe vazio para exibição gratuita)',
                 'step': '0.50'
-            }),
-            'duration': forms.TextInput(attrs={
-                'class': 'form-control-art',
-                'placeholder': 'Ex: 0:15, 0:30, 0:45 ou Loop'
-            }),
-            'thumbnail': forms.FileInput(attrs={
-                'class': 'avatar-file-input',
-                'id': 'projectThumbnailInput',
-                'accept': 'image/*'
             }),
             'video_demo': forms.FileInput(attrs={
                 'class': 'avatar-file-input',
@@ -167,13 +164,24 @@ class ProjectForm(forms.ModelForm):
                 'placeholder': 'Conte sobre as ferramentas usadas (Blender, After Effects, Cinema 4D, Houdini...), tempo de render e conceito.'
             }),
         }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        is_for_sale = cleaned_data.get('is_for_sale')
+        price = cleaned_data.get('price')
+        if not is_for_sale:
+            cleaned_data['price'] = 0.00
+        elif not price or price <= 0:
+            cleaned_data['price'] = 49.90
+        return cleaned_data
         labels = {
-            'title': 'Título do Projeto',
-            'category': 'Categoria de Motion',
-            'price': 'Preço do Modelo 3D / Asset (R$)',
+            'title': 'Título do Projeto *',
+            'category': 'Categoria de Motion *',
+            'is_for_sale': 'Disponibilizar para Venda?',
+            'price': 'Preço do Modelo / Asset (R$) (Opcional)',
             'duration': 'Duração da Animação',
             'thumbnail': 'Capa / Thumbnail (Opcional)',
-            'video_demo': 'Arquivo de Vídeo Motion (MP4, WebM, MOV, GIF)',
+            'video_demo': 'Arquivo de Vídeo Motion (MP4, WebM, MOV, GIF) *',
             'description': 'Descrição do Projeto',
         }
 
@@ -181,12 +189,12 @@ class ProjectForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['price'].required = False
         self.fields['duration'].required = False
-        self.fields['preview_style'].required = False
+        self.fields['is_for_sale'].required = False
 
     def clean_price(self):
         price = self.cleaned_data.get('price')
-        if price is None:
-            return 49.90
+        if not price or price <= 0:
+            return 0.00
         return price
 
     def clean_duration(self):
@@ -195,11 +203,18 @@ class ProjectForm(forms.ModelForm):
             return '0:30'
         return duration
 
-    def clean_preview_style(self):
-        style = self.cleaned_data.get('preview_style')
-        if not style:
-            return 'preview-cyber'
-        return style
+    def clean(self):
+        cleaned_data = super().clean()
+        is_for_sale = cleaned_data.get('is_for_sale')
+        price = cleaned_data.get('price')
+
+        if not is_for_sale:
+            cleaned_data['is_for_sale'] = False
+            cleaned_data['price'] = 0.00
+        else:
+            if not price or price <= 0:
+                cleaned_data['price'] = 29.90
+        return cleaned_data
 
 
 
@@ -262,4 +277,39 @@ class PartnershipMessageForm(forms.ModelForm):
         }
         labels = {
             'text': ''
+        }
+
+
+class UserSuggestionForm(forms.ModelForm):
+    class Meta:
+        model = UserSuggestion
+        fields = ('suggestion_type', 'title', 'message', 'name', 'email')
+        widgets = {
+            'suggestion_type': forms.Select(attrs={'class': 'form-control-art'}),
+            'title': forms.TextInput(attrs={
+                'class': 'form-control-art',
+                'placeholder': 'Ex: Adicionar filtro por tempo de render ou suporte a Blender 4.2',
+                'required': 'required'
+            }),
+            'message': forms.Textarea(attrs={
+                'class': 'form-control-art',
+                'rows': 4,
+                'placeholder': 'Conte para nós o que você gostaria de ver no ArtFlow, ideias de parcerias, ferramentas ou melhorias...',
+                'required': 'required'
+            }),
+            'name': forms.TextInput(attrs={
+                'class': 'form-control-art',
+                'placeholder': 'Seu Nome ou @user (Opcional)'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control-art',
+                'placeholder': 'seuemail@exemplo.com (Opcional)'
+            }),
+        }
+        labels = {
+            'suggestion_type': 'Categoria da Sugestão',
+            'title': 'Título da Ideia / Sugestão *',
+            'message': 'Descreva sua sugestão em detalhes *',
+            'name': 'Seu Nome / Usuário',
+            'email': 'Seu E-mail de Contato (Opcional)',
         }

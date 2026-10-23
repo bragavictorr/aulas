@@ -23,7 +23,7 @@
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
-        <input type="text" placeholder="Buscar no ArtFlow..." onclick="window.location.href='{% url 'home' %}'">
+        <input type="text" placeholder="Buscar por criadores, artes, 3D, VFX..." autocomplete="off">
     </div>
 
     <nav class="nav-links">
@@ -47,9 +47,105 @@
 
         <!-- Botão de Alternar Modo Claro/Escuro -->
         <button class="btn-theme-toggle nav-item-theme" onclick="toggleTheme()" title="Alternar Modo Claro / Modo Escuro">
-            <span class="theme-icon icon-sun">☀️</span>
-            <span class="theme-icon icon-moon">🌙</span>
+            <svg class="theme-icon icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg class="theme-icon icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
         </button>
+
+        <!-- Botão de Notificações com Dropdown Flutuante -->
+        <div class="notifications-dropdown-wrapper">
+            <button type="button" class="btn-notifications-bell" id="btnNotificationsBell" onclick="toggleNotificationsDropdown(event)" title="Notificações">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                {% if unread_notifications_count > 0 %}
+                    <span class="notification-badge-count" id="notifBadgeCount">{{ unread_notifications_count }}</span>
+                {% endif %}
+            </button>
+            <div class="notifications-dropdown-menu" id="notificationsDropdownMenu" style="display: none;">
+                <div class="notif-menu-header">
+                    <div class="notif-menu-title-wrap">
+                        <span class="notif-header-icon-box">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                            </svg>
+                        </span>
+                        <div>
+                            <span class="notif-menu-title">Notificações</span>
+                            <span class="notif-menu-subtitle">Atualizações do seu perfil</span>
+                        </div>
+                    </div>
+                    <div class="notif-header-actions">
+                        {% if unread_notifications_count > 0 %}
+                            <button type="button" class="btn-mark-all-read" onclick="markAllNotificationsAsRead(event)" title="Marcar todas como lidas">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                <span>Lidas</span>
+                            </button>
+                        {% endif %}
+                        {% if recent_notifications %}
+                            <button type="button" class="btn-clear-all-notifs" onclick="clearAllNotifications(event)" title="Apagar todas as notificações">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                <span>Limpar</span>
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="notif-list-container">
+                    {% for notif in recent_notifications %}
+                        <div class="notif-item-wrapper" id="notif-item-{{ notif.id }}">
+                            <a href="{% url 'mark_single_notification_read' notif.id %}" class="notif-item {% if not notif.is_read %}unread{% endif %}">
+                                <div class="notif-avatar-wrapper">
+                                    {% if notif.sender.profile.avatar %}
+                                        <img src="{{ notif.sender.profile.avatar.url }}" alt="{{ notif.sender.username }}" class="notif-sender-avatar">
+                                    {% else %}
+                                        <div class="notif-sender-ph">{{ notif.sender.username|slice:":1"|upper }}</div>
+                                    {% endif %}
+                                    <span class="notif-type-dot"></span>
+                                </div>
+                                <div class="notif-content">
+                                    <div class="notif-title-row">
+                                        <span class="notif-title">{{ notif.title }}</span>
+                                    </div>
+                                    <div class="notif-subtext">{{ notif.message }}</div>
+                                    <span class="notif-time">{{ notif.created_at|timesince }} atrás</span>
+                                </div>
+                            </a>
+                            <button type="button" class="btn-delete-single-notif" onclick="deleteNotification(event, '{{ notif.id }}', this)" title="Excluir notificação">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    {% empty %}
+                        <div class="notif-empty" id="notifEmptyState">
+                            <div class="notif-empty-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                                    <line x1="2" y1="2" x2="22" y2="22"></line>
+                                </svg>
+                            </div>
+                            <h4>Tudo limpo por aqui!</h4>
+                            <p>Você não tem notificações pendentes.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
 
         <a href="{% url 'profile' request.user.username %}" class="user-profile-badge-link" title="Meu Perfil">
             <div class="user-profile-badge {% if is_own_profile %}active-badge{% endif %}">
@@ -98,126 +194,140 @@
         </div>
     {% endif %}
 
-    <!-- CARD PRINCIPAL DO PERFIL (HEADER) -->
-    <section class="profile-header-card">
-        <div class="profile-header-backdrop"></div>
+    <!-- CARD PRINCIPAL DO PERFIL (DESIGN PROFISSIONAL ESTILO LINKEDIN) -->
+    <section class="profile-header-card linkedin-style-card">
+        <!-- Banner / Capa Panorâmica Estilo LinkedIn -->
+        <div class="profile-cover-banner" id="profileCoverBanner">
+            {% if profile.cover_image %}
+                <img id="coverBannerImg" src="{{ profile.cover_image.url }}" alt="Capa de {{ target_user.username }}" class="cover-banner-img">
+            {% else %}
+                <div id="coverBannerGradient" class="cover-banner-gradient"></div>
+            {% endif %}
+            
+            {% if is_own_profile %}
+                <!-- Upload direto de Capa ao clicar no botão -->
+                <input type="file" id="directCoverFileInput" accept="image/*" style="display: none;" onchange="handleDirectCoverUpload(this)">
+                <button type="button" class="btn-edit-cover-linkedin" id="btnEditCoverBanner" onclick="document.getElementById('directCoverFileInput').click()" title="Clique para escolher e salvar sua imagem de capa">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                    <span id="btnEditCoverText">Editar Capa</span>
+                </button>
+            {% endif %}
+        </div>
         
-        <div class="profile-header-main">
-            <!-- Avatar do Usuário com efeito Glow e Botão de Troca Rápida se for o Dono -->
-            <div class="profile-avatar-wrapper">
-                <div class="profile-avatar-box">
-                    {% if profile.avatar %}
-                        <img id="profileAvatarDisplay" src="{{ profile.avatar.url }}" alt="Avatar de {{ target_user.username }}" class="profile-avatar-image">
-                    {% else %}
-                        <div id="profileAvatarFallback" class="profile-avatar-placeholder">
-                            <span>{{ target_user.username|slice:":2"|upper }}</span>
-                        </div>
+        <div class="profile-header-body">
+            <!-- Linha Superior: Foto Circular Sobrepondo o Banner + Botões de Ação à Direita -->
+            <div class="profile-top-action-row">
+                <!-- Foto de Perfil Circular Estilo LinkedIn (Corte Redondo com Borda de Destaque) -->
+                <div class="profile-avatar-linkedin-wrapper">
+                    <div class="profile-avatar-linkedin-box">
+                        {% if profile.avatar %}
+                            <img id="profileAvatarDisplay" src="{{ profile.avatar.url }}" alt="Foto de {{ target_user.username }}" class="profile-avatar-linkedin-img">
+                        {% else %}
+                            <div id="profileAvatarFallback" class="profile-avatar-linkedin-fallback">
+                                <span>{{ target_user.username|slice:":1"|upper }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if is_own_profile %}
+                        <!-- Upload direto de Avatar ao clicar no ícone de câmera -->
+                        <input type="file" id="directAvatarFileInput" accept="image/*" style="display: none;" onchange="handleDirectAvatarUpload(this)">
+                        <button type="button" class="avatar-camera-linkedin-btn" id="btnAvatarCameraDirect" title="Clique para escolher e atualizar sua foto de perfil" onclick="document.getElementById('directAvatarFileInput').click()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                <circle cx="12" cy="13" r="4"></circle>
+                            </svg>
+                        </button>
                     {% endif %}
                 </div>
-                
-                {% if is_own_profile %}
-                    <label for="id_avatar" class="avatar-quick-upload-btn" title="Alterar foto de avatar" onclick="openTab('edit')">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                            <circle cx="12" cy="13" r="4"></circle>
-                        </svg>
-                    </label>
-                {% endif %}
+
+                <!-- Botões de Ação Alinhados à Direita no Estilo LinkedIn -->
+                <div class="profile-linkedin-actions">
+                    {% if is_own_profile %}
+                        <button class="btn-linkedin-primary" onclick="openPublishModal()">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            <span>Publicar Projeto</span>
+                        </button>
+                        <button class="btn-linkedin-secondary" onclick="openTab('edit')">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            <span>Editar Perfil</span>
+                        </button>
+                    {% else %}
+                        <!-- Botão de Seguir / Seguindo estilo LinkedIn -->
+                        <button type="button" class="btn-follow-toggle {% if is_following %}following{% endif %}" id="btnFollowToggle" onclick="toggleFollow('{{ target_user.username }}')">
+                            <span class="follow-icon">{% if is_following %}✓{% else %}+{% endif %}</span>
+                            <span class="follow-text" id="followText">{% if is_following %}Seguindo{% else %}Seguir{% endif %}</span>
+                        </button>
+
+                        <button class="btn-linkedin-secondary" onclick="openPartnershipModal('@{{ target_user.username }}', '{{ target_user.username }}')" title="Propor um trabalho conjunto com este artista">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            <span>Propor Parceria</span>
+                        </button>
+
+                        {% if profile.available_for_hire %}
+                            <button class="btn-linkedin-accent" onclick="openHireModal('@{{ target_user.username }}', '{{ target_user.username }}')">
+                                <span>Contratar</span>
+                            </button>
+                        {% endif %}
+                    {% endif %}
+                </div>
             </div>
 
-            <!-- Dados Textuais do Criador -->
-            <div class="profile-info-content">
-                <div class="profile-title-row">
-                    <div class="profile-names">
-                        <h2>{{ target_user.first_name|default:target_user.username }}</h2>
-                        <span class="profile-handle">@{{ target_user.username }}</span>
-                    </div>
-
-                    <!-- Status de Disponibilidade -->
-                    <div class="hire-status-badge {% if profile.available_for_hire %}available{% else %}busy{% endif %}">
-                        <span class="status-indicator-dot"></span>
-                        <span>{% if profile.available_for_hire %}Disponível para Projetos{% else %}Indisponível no Momento{% endif %}</span>
-                    </div>
+            <!-- Informações Profissionais (Nome, Headline, Conexões e Seguidores) -->
+            <div class="profile-info-linkedin">
+                <div class="name-badge-line">
+                    <h2>{{ target_user.first_name|default:target_user.username }}</h2>
+                    <span class="profile-handle-tag">@{{ target_user.username }}</span>
+                    <span class="verified-dot-tag" title="Criador Verificado">✓</span>
                 </div>
 
-                <!-- Especialidade / Cargo -->
-                <div class="profile-specialty-row">
-                    <span class="specialty-badge">
-                        {{ profile.especialidade|default:"Motion Designer & Artista Audiovisual" }}
-                    </span>
-                    {% if profile.location %}
-                        <span class="location-badge">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                            {{ profile.location }}
-                        </span>
-                    {% endif %}
-                </div>
-
-                <!-- Biografia -->
-                <p class="profile-bio">
-                    {% if profile.bio %}
-                        {{ profile.bio }}
-                    {% else %}
-                        <span class="bio-empty">Este criador ainda não definiu uma biografia detalhada.</span>
-                    {% endif %}
+                <p class="profile-headline-text">
+                    {{ profile.especialidade|default:"Motion Designer & Artista Audiovisual" }}
                 </p>
 
-                <!-- Links e Redes -->
-                <div class="profile-links-row">
-                    {% if profile.portfolio_url %}
-                        <a href="{{ profile.portfolio_url }}" target="_blank" rel="noopener noreferrer" class="link-portfolio">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-                            </svg>
-                            <span>Portfólio Externo / GitHub</span>
-                        </a>
+                <!-- Metadados: Localização, Portfólio e Data de Ingresso -->
+                <div class="profile-meta-line">
+                    {% if profile.location %}
+                        <span class="meta-item">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                            <span>{{ profile.location }}</span>
+                        </span>
                     {% endif %}
                     
-                    <span class="member-since">
-                        Membro desde {{ target_user.date_joined|date:"M Y" }}
+                    {% if profile.portfolio_url %}
+                        <span class="meta-separator">•</span>
+                        <a href="{{ profile.portfolio_url }}" target="_blank" rel="noopener noreferrer" class="meta-item meta-link">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                            <span>Portfólio / GitHub</span>
+                        </a>
+                    {% endif %}
+
+                    <span class="meta-separator">•</span>
+                    <span class="meta-item">Membro desde {{ target_user.date_joined|date:"M Y" }}</span>
+                </div>
+
+                <!-- Estatísticas de Conexões e Seguidores Estilo LinkedIn (Clicáveis para ver a lista) -->
+                <div class="profile-network-line">
+                    <span class="network-stat">
+                        <button type="button" class="network-stat-btn" onclick="openFollowModal('followers')" title="Clique para ver quem segue @{{ target_user.username }}">
+                            <strong id="followersCountDisplay">{{ followers_count }}</strong> seguidores
+                        </button>
+                    </span>
+                    <span class="network-bullet">•</span>
+                    <span class="network-stat">
+                        <button type="button" class="network-stat-btn" onclick="openFollowModal('following')" title="Clique para ver quem @{{ target_user.username }} está seguindo">
+                            <strong id="followingCountDisplay">{{ following_count }}</strong> seguindo
+                        </button>
+                    </span>
+                    <span class="network-bullet">•</span>
+                    <span class="network-stat">
+                        <strong>{{ projects.count }}</strong> publicações
                     </span>
                 </div>
-            </div>
 
-            <!-- Botões de Ação do Perfil -->
-            <div class="profile-action-buttons">
-                {% if is_own_profile %}
-                    <button class="btn-publish-project-header" onclick="openPublishModal()">
-                        <svg class="btn-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="12" y1="5" x2="12" y2="19"></line>
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                        </svg>
-                        <span>Publicar Projeto</span>
-                    </button>
-                    <button class="btn-art-primary" onclick="openTab('edit')">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                        </svg>
-                        <span>Editar Perfil & Foto</span>
-                    </button>
-                {% else %}
-                    <!-- Botão de Propor Parceria / Projeto Conjunto -->
-                    <button class="btn-propose-collab" onclick="openPartnershipModal('@{{ target_user.username }}', '{{ target_user.username }}')" title="Propor um trabalho conjunto com este artista">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="9" cy="7" r="4"></circle>
-                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                        </svg>
-                        <span>Propor Parceria</span>
-                    </button>
-
-                    {% if profile.available_for_hire %}
-                        <button class="btn-hire-creator" onclick="openHireModal('@{{ target_user.username }}', '{{ target_user.username }}')">
-                            <span>Contratar Criador</span>
-                        </button>
-                    {% else %}
-                        <button class="btn-hire-creator disabled" disabled title="Este criador não está aceitando novos projetos no momento">
-                            <span>Agenda Fechada</span>
-                        </button>
-                    {% endif %}
+                <!-- Biografia do Criador -->
+                {% if profile.bio %}
+                    <p class="profile-about-snippet">{{ profile.bio }}</p>
                 {% endif %}
             </div>
         </div>
@@ -229,6 +339,14 @@
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line></svg>
             <span>Portfólio & Projetos ({{ projects.count }})</span>
         </button>
+        <button class="tab-btn" id="tabBtnFollowers" onclick="openTab('followers')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            <span>Seguidores ({{ followers_count }})</span>
+        </button>
+        <button class="tab-btn" id="tabBtnFollowing" onclick="openTab('following')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+            <span>Seguindo ({{ following_count }})</span>
+        </button>
         {% if is_own_profile %}
             <button class="tab-btn" id="tabBtnSaved" onclick="openTab('saved')">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
@@ -238,9 +356,13 @@
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                 <span>Curtidos ({{ liked_projects.count }})</span>
             </button>
-            <button class="tab-btn" id="tabBtnPartnerships" onclick="openTab('partnerships')">
+            <button class="tab-btn" id="tabBtnPartnershipsAccepted" onclick="openTab('partnerships_accepted')">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                <span>Parcerias & Conversas ({{ partnerships.count }})</span>
+                <span>Parcerias Aceitas ({{ partnerships_accepted.count }})</span>
+            </button>
+            <button class="tab-btn" id="tabBtnPartnershipsPending" onclick="openTab('partnerships_pending')">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                <span>Parcerias Pendentes ({{ partnerships_pending.count }})</span>
             </button>
             <button class="tab-btn" id="tabBtnProposals" onclick="openTab('proposals')">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
@@ -338,6 +460,90 @@
         {% endif %}
     </div>
 
+    <!-- ABA: SEGUIDORES -->
+    <div class="tab-pane" id="tabPaneFollowers">
+        <div class="projects-tab-header">
+            <div>
+                <h3>Seguidores de @{{ target_user.username }} ({{ followers_count }})</h3>
+                <p style="color: var(--text-muted); font-size: 0.88rem; margin: 4px 0 0;">Artistas e membros que acompanham este perfil no ArtFlow.</p>
+            </div>
+        </div>
+
+        {% if followers_list %}
+            <div class="followers-grid">
+                {% for item in followers_list %}
+                    <div class="follower-card">
+                        <a href="{% url 'profile' item.follower.username %}" class="follower-user-info">
+                            {% if item.follower.profile.avatar %}
+                                <img src="{{ item.follower.profile.avatar.url }}" alt="{{ item.follower.username }}" class="follower-avatar-circle">
+                            {% else %}
+                                <div class="follower-avatar-ph">{{ item.follower.username|slice:":1"|upper }}</div>
+                            {% endif %}
+                            <div class="follower-text-details">
+                                <div class="follower-name-row">{{ item.follower.first_name|default:item.follower.username }}</div>
+                                <div class="follower-handle-row">@{{ item.follower.username }}</div>
+                                <div class="follower-meta-row">{{ item.follower.profile.especialidade|default:"Criador Motion" }} &bull; {{ item.projects_count }} arte(s)</div>
+                            </div>
+                        </a>
+                        {% if request.user.is_authenticated and request.user != item.follower %}
+                            <button type="button" class="btn-follow-toggle {% if item.follower.id in current_user_following_ids %}following{% endif %}" onclick="toggleFollowCard('{{ item.follower.username }}', this)">
+                                {% if item.follower.id in current_user_following_ids %}✓ Seguindo{% else %}+ Seguir{% endif %}
+                            </button>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <svg class="empty-svg" width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                <h3>Nenhum seguidor ainda</h3>
+                <p>Quando outros criadores começarem a seguir @{{ target_user.username }}, eles aparecerão nesta lista.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- ABA: SEGUINDO -->
+    <div class="tab-pane" id="tabPaneFollowing">
+        <div class="projects-tab-header">
+            <div>
+                <h3>Quem @{{ target_user.username }} está seguindo ({{ following_count }})</h3>
+                <p style="color: var(--text-muted); font-size: 0.88rem; margin: 4px 0 0;">Criadores e parceiros que este perfil acompanha.</p>
+            </div>
+        </div>
+
+        {% if following_list %}
+            <div class="followers-grid">
+                {% for item in following_list %}
+                    <div class="follower-card">
+                        <a href="{% url 'profile' item.following.username %}" class="follower-user-info">
+                            {% if item.following.profile.avatar %}
+                                <img src="{{ item.following.profile.avatar.url }}" alt="{{ item.following.username }}" class="follower-avatar-circle">
+                            {% else %}
+                                <div class="follower-avatar-ph">{{ item.following.username|slice:":1"|upper }}</div>
+                            {% endif %}
+                            <div class="follower-text-details">
+                                <div class="follower-name-row">{{ item.following.first_name|default:item.following.username }}</div>
+                                <div class="follower-handle-row">@{{ item.following.username }}</div>
+                                <div class="follower-meta-row">{{ item.following.profile.especialidade|default:"Criador Motion" }} &bull; {{ item.projects_count }} arte(s)</div>
+                            </div>
+                        </a>
+                        {% if request.user.is_authenticated and request.user != item.following %}
+                            <button type="button" class="btn-follow-toggle {% if item.following.id in current_user_following_ids %}following{% endif %}" onclick="toggleFollowCard('{{ item.following.username }}', this)">
+                                {% if item.following.id in current_user_following_ids %}✓ Seguindo{% else %}+ Seguir{% endif %}
+                            </button>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <svg class="empty-svg" width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+                <h3>Nenhum criador seguido ainda</h3>
+                <p>@{{ target_user.username }} ainda não está seguindo nenhum criador.</p>
+            </div>
+        {% endif %}
+    </div>
+
     <!-- ABA 2: PROJETOS SALVOS (BOOKMARKS) -->
     {% if is_own_profile %}
         <div class="tab-pane" id="tabPaneSaved">
@@ -385,7 +591,7 @@
                                         {% if project.author.profile.avatar %}
                                             <img src="{{ project.author.profile.avatar.url }}" alt="{{ project.author.username }}" class="avatar-small-img">
                                         {% else %}
-                                            <span class="avatar-small">{{ project.author.username|slice:":2"|upper }}</span>
+                                            <span class="avatar-small">{{ project.author.username|slice:":1"|upper }}</span>
                                         {% endif %}
                                         <span class="author-name">Por <strong class="author-tag">@{{ project.author.username }}</strong></span>
                                     </a>
@@ -472,7 +678,7 @@
                                         {% if project.author.profile.avatar %}
                                             <img src="{{ project.author.profile.avatar.url }}" alt="{{ project.author.username }}" class="avatar-small-img">
                                         {% else %}
-                                            <span class="avatar-small">{{ project.author.username|slice:":2"|upper }}</span>
+                                            <span class="avatar-small">{{ project.author.username|slice:":1"|upper }}</span>
                                         {% endif %}
                                         <span class="author-name">Por <strong class="author-tag">@{{ project.author.username }}</strong></span>
                                     </a>
@@ -508,43 +714,32 @@
             {% endif %}
         </div>
 
-        <!-- ABA 4: TRABALHOS CONJUNTOS, PARCERIAS E CONVERSAS ENTRE ARTISTAS -->
-        <div class="tab-pane" id="tabPanePartnerships">
+        <!-- ABA: PARCERIAS ACEITAS -->
+        <div class="tab-pane" id="tabPanePartnershipsAccepted">
             <div class="projects-tab-header">
                 <div>
-                    <h3>Parcerias, Trabalhos Conjuntos & Conversas</h3>
-                    <p style="color: var(--text-muted); font-size: 0.88rem; margin: 4px 0 0;">Conecte-se com outros artistas, divida etapas criativas e alinhe projetos em conjunto.</p>
+                    <h3>Parcerias Aceitas & Colaborações</h3>
+                    <p style="color: var(--text-muted); font-size: 0.88rem; margin: 4px 0 0;">Projetos em co-criação e canais de conversa direta com artistas parceiros.</p>
                 </div>
             </div>
 
-            {% if partnerships %}
+            {% if partnerships_accepted %}
                 <div class="partnerships-list">
-                    {% for partnership in partnerships %}
-                        {% with partner=partnership.receiver|default:partnership.sender %}
+                    {% for partnership in partnerships_accepted %}
                         {% if partnership.sender == request.user %}
-                            {% with partner_user=partnership.receiver is_proponent=True %}
+                            {% with partner_user=partnership.receiver %}
                                 <div class="partnership-card">
                                     <div class="partnership-card-header">
                                         <div class="partner-profile-info">
                                             {% if partner_user.profile.avatar %}
                                                 <img src="{{ partner_user.profile.avatar.url }}" alt="{{ partner_user.username }}" class="partner-avatar-img">
                                             {% else %}
-                                                <div class="partner-avatar-fallback">{{ partner_user.username|slice:":2"|upper }}</div>
+                                                <div class="partner-avatar-fallback">{{ partner_user.username|slice:":1"|upper }}</div>
                                             {% endif %}
                                             <div class="partner-details">
-                                                <span class="partner-role-badge">Parceria Proposta para</span>
+                                                <span class="partner-role-badge">Parceiro Criativo</span>
                                                 <a href="{% url 'profile' partner_user.username %}" class="partner-name-link">@{{ partner_user.username }}</a>
                                             </div>
-                                        </div>
-
-                                        <div class="partnership-status-badge status-{{ partnership.status }}">
-                                            {% if partnership.status == 'pending' %}
-                                                Pendente de Aceite
-                                            {% elif partnership.status == 'accepted' %}
-                                                Parceria Aceita & Ativa
-                                            {% else %}
-                                                Recusada
-                                            {% endif %}
                                         </div>
                                     </div>
 
@@ -559,14 +754,8 @@
                                             {% endif %}
                                         </div>
 
-                                        {% if partnership.status == 'pending' %}
-                                            <div class="partnership-actions-row">
-                                                <span class="collab-awaiting-notice">Você propôs esta parceria. Aguardando resposta de @{{ partner_user.username }}.</span>
-                                            </div>
-                                        {% endif %}
-
                                         <!-- Conversa Direta entre os Artistas -->
-                                        <div class="partnership-chat-container">
+                                        <div class="partnership-chat-container" data-proposal-id="{{ partnership.id }}">
                                             <div class="chat-header-title">
                                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                                                 Conversa sobre a Parceria
@@ -599,29 +788,19 @@
                                 </div>
                             {% endwith %}
                         {% else %}
-                            {% with partner_user=partnership.sender is_proponent=False %}
+                            {% with partner_user=partnership.sender %}
                                 <div class="partnership-card">
                                     <div class="partnership-card-header">
                                         <div class="partner-profile-info">
                                             {% if partner_user.profile.avatar %}
                                                 <img src="{{ partner_user.profile.avatar.url }}" alt="{{ partner_user.username }}" class="partner-avatar-img">
                                             {% else %}
-                                                <div class="partner-avatar-fallback">{{ partner_user.username|slice:":2"|upper }}</div>
+                                                <div class="partner-avatar-fallback">{{ partner_user.username|slice:":1"|upper }}</div>
                                             {% endif %}
                                             <div class="partner-details">
-                                                <span class="partner-role-badge">Convite Recebido de</span>
+                                                <span class="partner-role-badge">Parceiro Criativo</span>
                                                 <a href="{% url 'profile' partner_user.username %}" class="partner-name-link">@{{ partner_user.username }}</a>
                                             </div>
-                                        </div>
-
-                                        <div class="partnership-status-badge status-{{ partnership.status }}">
-                                            {% if partnership.status == 'pending' %}
-                                                Convite Pendente
-                                            {% elif partnership.status == 'accepted' %}
-                                                Parceria Aceita & Ativa
-                                            {% else %}
-                                                Recusada
-                                            {% endif %}
                                         </div>
                                     </div>
 
@@ -636,20 +815,8 @@
                                             {% endif %}
                                         </div>
 
-                                        {% if partnership.status == 'pending' %}
-                                            <div class="partnership-actions-row">
-                                                <a href="{% url 'update_partnership_status' partnership.id 'accepted' %}" class="btn-accept-collab">
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                                    <span>Aceitar Parceria</span>
-                                                </a>
-                                                <a href="{% url 'update_partnership_status' partnership.id 'declined' %}" class="btn-decline-collab">
-                                                    <span>Recusar</span>
-                                                </a>
-                                            </div>
-                                        {% endif %}
-
                                         <!-- Conversa Direta entre os Artistas -->
-                                        <div class="partnership-chat-container">
+                                        <div class="partnership-chat-container" data-proposal-id="{{ partnership.id }}">
                                             <div class="chat-header-title">
                                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                                                 Conversa sobre a Parceria
@@ -682,17 +849,176 @@
                                 </div>
                             {% endwith %}
                         {% endif %}
-                        {% endwith %}
                     {% endfor %}
                 </div>
             {% else %}
                 <div class="empty-state">
                     <svg class="empty-svg" width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                    <h3>Nenhuma parceria ou colaboração ativa</h3>
-                    <p>Visite o perfil de outros artistas e clique em <strong>"Propor Parceria"</strong> para unirem estilos, criarem animações conjuntas e conversarem sobre projetos!</p>
+                    <h3>Nenhuma parceria aceita no momento</h3>
+                    <p>Quando você ou outro artista aceitarem uma proposta de colaboração, ela aparecerá aqui com chat direto e canal de co-criação.</p>
                     <a href="{% url 'home' %}" class="btn-main-access" style="margin-top: 18px; display: inline-block;">
                         Encontrar Artistas no Feed
                     </a>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- ABA: PARCERIAS PENDENTES -->
+        <div class="tab-pane" id="tabPanePartnershipsPending">
+            <div class="projects-tab-header">
+                <div>
+                    <h3>Parcerias Pendentes</h3>
+                    <p style="color: var(--text-muted); font-size: 0.88rem; margin: 4px 0 0;">Propostas enviadas e convites recebidos aguardando confirmação.</p>
+                </div>
+            </div>
+
+            {% if partnerships_pending %}
+                <div class="partnerships-list">
+                    {% for partnership in partnerships_pending %}
+                        {% if partnership.sender == request.user %}
+                            {% with partner_user=partnership.receiver %}
+                                <div class="partnership-card">
+                                    <div class="partnership-card-header">
+                                        <div class="partner-profile-info">
+                                            {% if partner_user.profile.avatar %}
+                                                <img src="{{ partner_user.profile.avatar.url }}" alt="{{ partner_user.username }}" class="partner-avatar-img">
+                                            {% else %}
+                                                <div class="partner-avatar-fallback">{{ partner_user.username|slice:":1"|upper }}</div>
+                                            {% endif %}
+                                            <div class="partner-details">
+                                                <span class="partner-role-badge">Proposta enviada para</span>
+                                                <a href="{% url 'profile' partner_user.username %}" class="partner-name-link">@{{ partner_user.username }}</a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="partnership-content">
+                                        <div class="partnership-title-row">
+                                            <h4>{{ partnership.title }}</h4>
+                                            {% if partnership.roles %}
+                                                <span class="partnership-roles-tag">
+                                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><polyline points="16 11 18 13 22 9"></polyline></svg>
+                                                    {{ partnership.roles }}
+                                                </span>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="partnership-actions-row">
+                                            <span class="collab-awaiting-notice">Você propôs esta parceria. Aguardando resposta de @{{ partner_user.username }}.</span>
+                                        </div>
+
+                                        <!-- Conversa Direta entre os Artistas -->
+                                        <div class="partnership-chat-container" data-proposal-id="{{ partnership.id }}">
+                                            <div class="chat-header-title">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                                                Conversa sobre a Parceria
+                                            </div>
+
+                                            <div class="chat-messages-box">
+                                                {% for msg in partnership.messages.all %}
+                                                    <div class="chat-bubble {% if msg.sender == request.user %}chat-bubble-mine{% else %}chat-bubble-partner{% endif %}">
+                                                        <div class="chat-bubble-meta">
+                                                            <span class="chat-sender-name">{% if msg.sender == request.user %}Você{% else %}@{{ msg.sender.username }}{% endif %}</span>
+                                                            <span>{{ msg.created_at|date:"d/m H:i" }}</span>
+                                                        </div>
+                                                        <div>{{ msg.text }}</div>
+                                                    </div>
+                                                {% empty %}
+                                                    <p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; margin: 10px 0;">Inicie a conversa sobre como planejam o projeto.</p>
+                                                {% endfor %}
+                                            </div>
+
+                                            <form method="POST" action="{% url 'send_partnership_message' partnership.id %}" class="chat-input-form">
+                                                {% csrf_token %}
+                                                <input type="text" name="text" class="chat-input-field" placeholder="Escreva uma mensagem para @{{ partner_user.username }}..." required autocomplete="off">
+                                                <button type="submit" class="btn-send-chat">
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                                                    <span>Enviar</span>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endwith %}
+                        {% else %}
+                            {% with partner_user=partnership.sender %}
+                                <div class="partnership-card">
+                                    <div class="partnership-card-header">
+                                        <div class="partner-profile-info">
+                                            {% if partner_user.profile.avatar %}
+                                                <img src="{{ partner_user.profile.avatar.url }}" alt="{{ partner_user.username }}" class="partner-avatar-img">
+                                            {% else %}
+                                                <div class="partner-avatar-fallback">{{ partner_user.username|slice:":1"|upper }}</div>
+                                            {% endif %}
+                                            <div class="partner-details">
+                                                <span class="partner-role-badge">Convite recebido de</span>
+                                                <a href="{% url 'profile' partner_user.username %}" class="partner-name-link">@{{ partner_user.username }}</a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="partnership-content">
+                                        <div class="partnership-title-row">
+                                            <h4>{{ partnership.title }}</h4>
+                                            {% if partnership.roles %}
+                                                <span class="partnership-roles-tag">
+                                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><polyline points="16 11 18 13 22 9"></polyline></svg>
+                                                    {{ partnership.roles }}
+                                                </span>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="partnership-actions-row">
+                                            <a href="{% url 'update_partnership_status' partnership.id 'accepted' %}" class="btn-accept-collab">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                                <span>Aceitar Parceria</span>
+                                            </a>
+                                            <a href="{% url 'update_partnership_status' partnership.id 'declined' %}" class="btn-decline-collab">
+                                                <span>Recusar</span>
+                                            </a>
+                                        </div>
+
+                                        <!-- Conversa Direta entre os Artistas -->
+                                        <div class="partnership-chat-container" data-proposal-id="{{ partnership.id }}">
+                                            <div class="chat-header-title">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                                                Conversa sobre a Parceria
+                                            </div>
+
+                                            <div class="chat-messages-box">
+                                                {% for msg in partnership.messages.all %}
+                                                    <div class="chat-bubble {% if msg.sender == request.user %}chat-bubble-mine{% else %}chat-bubble-partner{% endif %}">
+                                                        <div class="chat-bubble-meta">
+                                                            <span class="chat-sender-name">{% if msg.sender == request.user %}Você{% else %}@{{ msg.sender.username }}{% endif %}</span>
+                                                            <span>{{ msg.created_at|date:"d/m H:i" }}</span>
+                                                        </div>
+                                                        <div>{{ msg.text }}</div>
+                                                    </div>
+                                                {% empty %}
+                                                    <p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; margin: 10px 0;">Nenhuma mensagem trocada ainda.</p>
+                                                {% endfor %}
+                                            </div>
+
+                                            <form method="POST" action="{% url 'send_partnership_message' partnership.id %}" class="chat-input-form">
+                                                {% csrf_token %}
+                                                <input type="text" name="text" class="chat-input-field" placeholder="Escreva uma mensagem para @{{ partner_user.username }}..." required autocomplete="off">
+                                                <button type="submit" class="btn-send-chat">
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                                                    <span>Enviar</span>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endwith %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <svg class="empty-svg" width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    <h3>Nenhuma proposta de parceria pendente</h3>
+                    <p>Você não possui propostas de parcerias pendentes de resposta no momento.</p>
                 </div>
             {% endif %}
         </div>
@@ -759,7 +1085,7 @@
                                 <img id="avatarPreviewImg" src="{{ profile.avatar.url }}" alt="Preview" class="preview-circle">
                             {% else %}
                                 <div id="avatarPreviewFallback" class="preview-circle-placeholder">
-                                    {{ target_user.username|slice:":2"|upper }}
+                                    {{ target_user.username|slice:":1"|upper }}
                                 </div>
                             {% endif %}
                         </div>
@@ -767,12 +1093,35 @@
                         <div class="avatar-upload-controls">
                             <label class="btn-upload-file" for="{{ profile_form.avatar.id_for_label }}">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                                <span>Escolher Nova Foto de Avatar</span>
+                                <span>Escolher Nova Foto de Perfil</span>
                             </label>
                             {{ profile_form.avatar }}
                             <small class="upload-tip">Formatos aceitos: JPG, PNG, GIF, WEBP. Tamanho máximo recomendado: 5MB.</small>
                             {% if profile_form.avatar.errors %}
                                 <div class="field-error">{{ profile_form.avatar.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Seção de Imagem de Capa (Banner LinkedIn) -->
+                    <div class="form-avatar-section" style="margin-top: 18px; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 18px;">
+                        <div class="current-cover-preview">
+                            {% if profile.cover_image %}
+                                <img id="coverPreviewImg" src="{{ profile.cover_image.url }}" alt="Preview Capa" class="preview-cover-rect">
+                            {% else %}
+                                <div id="coverPreviewFallback" class="preview-cover-placeholder">Capa Panorâmica Motion</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="avatar-upload-controls">
+                            <label class="btn-upload-file" for="{{ profile_form.cover_image.id_for_label }}">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                                <span>Escolher Nova Imagem de Capa</span>
+                            </label>
+                            {{ profile_form.cover_image }}
+                            <small class="upload-tip">Dimensão recomendada: 1200x300px. JPG, PNG ou WEBP.</small>
+                            {% if profile_form.cover_image.errors %}
+                                <div class="field-error">{{ profile_form.cover_image.errors }}</div>
                             {% endif %}
                         </div>
                     </div>
@@ -818,14 +1167,6 @@
                         {{ profile_form.bio }}
                     </div>
 
-                    <!-- Disponibilidade -->
-                    <div class="form-group checkbox-group">
-                        {{ profile_form.available_for_hire }}
-                        <label for="{{ profile_form.available_for_hire.id_for_label }}">
-                            Disponível para novas propostas de contratação e projetos freelance
-                        </label>
-                    </div>
-
                     <div class="form-actions-row">
                         <button type="submit" class="btn-main-access">Salvar Alterações</button>
                     </div>
@@ -849,7 +1190,7 @@
             <p>Compartilhe suas animações, loops e produções visuais com a comunidade criativa.</p>
         </div>
 
-        <form method="POST" action="{% url 'add_project' %}" enctype="multipart/form-data">
+        <form method="POST" action="{% url 'add_project' %}" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
 
             <div class="form-group">
@@ -857,56 +1198,87 @@
                 {{ project_form.title }}
             </div>
 
-            <div class="form-grid-two">
-                <div class="form-group">
-                    <label for="{{ project_form.category.id_for_label }}">Categoria de Motion *</label>
-                    {{ project_form.category }}
-                </div>
-                <div class="form-group">
-                    <label for="{{ project_form.duration.id_for_label }}">Duração Estimada</label>
-                    {{ project_form.duration }}
-                </div>
+            <div class="form-group">
+                <label for="{{ project_form.category.id_for_label }}">Categoria de Motion *</label>
+                {{ project_form.category }}
             </div>
+            <input type="hidden" name="duration" id="projectDurationInputProfile" value="0:30">
 
-            <div class="form-grid-two">
-                <div class="form-group">
-                    <label for="{{ project_form.preview_style.id_for_label }}">Estilo Visual do Card</label>
-                    {{ project_form.preview_style }}
-                </div>
-                <div class="form-group">
-                    <label for="{{ project_form.price.id_for_label }}">Preço da Arte / Licença (R$)</label>
-                    {{ project_form.price }}
-                    <div class="price-quick-chips" style="margin-top: 6px;">
-                        <button type="button" class="price-chip-btn" onclick="document.querySelector('#publishProjectModal input[name=price]').value='29.90'">R$ 29,90</button>
-                        <button type="button" class="price-chip-btn" onclick="document.querySelector('#publishProjectModal input[name=price]').value='49.90'">R$ 49,90</button>
-                        <button type="button" class="price-chip-btn" onclick="document.querySelector('#publishProjectModal input[name=price]').value='99.90'">R$ 99,90</button>
-                        <button type="button" class="price-chip-btn" onclick="document.querySelector('#publishProjectModal input[name=price]').value='199.90'">R$ 199,90</button>
+            <!-- UPLOAD DE VÍDEO DE MOTION DESIGN MODERNO E ELEGANTE -->
+            <div class="form-group">
+                <label class="form-label-bold" style="display: flex; align-items: center; justify-content: space-between;">
+                    <span>Vídeo / Animação do Projeto *</span>
+                    <span class="badge-motion-tag">MP4 • WEBM • MOV • GIF</span>
+                </label>
+                
+                <div class="video-upload-card" id="videoUploadCardProfile">
+                    <input type="file" name="video_demo" id="projectVideoInputProfile" class="video-file-hidden" accept="video/mp4,video/webm,video/ogg,video/quicktime,video/*,image/gif" required onchange="handleModernVideoUpload(this, 'videoPreviewProfile', 'videoSelectedMetaProfile', 'videoMetaNameProfile', 'videoMetaDurationProfile', 'videoMetaSizeProfile', 'projectDurationInputProfile')">
+                    
+                    <div class="video-upload-bar" onclick="document.getElementById('projectVideoInputProfile').click()">
+                        <div class="upload-bar-left">
+                            <div class="upload-icon-circle">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+                            </div>
+                            <div class="upload-bar-texts">
+                                <span class="upload-main-text">Carregar Vídeo ou Animação</span>
+                                <span class="upload-sub-text">Formatos: MP4, WebM, MOV ou GIF animado</span>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-choose-file">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                            <span>Escolher Vídeo</span>
+                        </button>
+                    </div>
+
+                    <div class="video-selected-card" id="videoSelectedMetaProfile" style="display: none;">
+                        <div class="video-meta-header">
+                            <div class="video-meta-left">
+                                <span class="badge-selected-status">✓ Vídeo Anexado</span>
+                                <span class="video-meta-filename" id="videoMetaNameProfile">arquivo.mp4</span>
+                            </div>
+                            <div class="video-meta-badges">
+                                <span class="meta-pill" id="videoMetaDurationProfile">⏱️ 0:00</span>
+                                <span class="meta-pill" id="videoMetaSizeProfile">💾 0 MB</span>
+                                <button type="button" class="btn-replace-video" onclick="document.getElementById('projectVideoInputProfile').click()">Trocar Vídeo</button>
+                            </div>
+                        </div>
+                        <video id="videoPreviewProfile" class="video-player-preview" controls muted loop playsinline></video>
                     </div>
                 </div>
             </div>
 
+            <!-- OPÇÃO DE VENDA: TOGGLE SWITCH MODERNO & FLUIDO -->
             <div class="form-group">
-                <label>🎬 Vídeo de Motion Design / Animação (MP4, WebM, MOV, GIF) *</label>
-                <div class="avatar-upload-controls">
-                    <label class="btn-upload-file btn-upload-video" for="projectVideoInput" style="border-color: var(--neon-cyan); background: rgba(0, 255, 204, 0.12); color: var(--neon-cyan);">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
-                        <span>Selecionar Vídeo Motion Design</span>
+                <div class="sale-checkbox-card">
+                    <label class="sale-checkbox-label" for="id_is_for_sale_profile">
+                        <div class="modern-toggle-wrapper">
+                            <input type="checkbox" name="is_for_sale" id="id_is_for_sale_profile" class="toggle-switch-input" onchange="toggleSaleCheckboxProfile(this.checked)">
+                            <span class="modern-toggle-slider"></span>
+                        </div>
+                        <div class="sale-label-info">
+                            <span class="sale-label-title">
+                                <span>Disponibilizar esta obra para venda</span>
+                                <span class="badge-motion-tag">OPCIONAL</span>
+                            </span>
+                            <span class="sale-label-sub">Permite que clientes comprem e façam download dos arquivos do projeto (.blend, .aep, etc). Desmarcado = apenas exibição no portfólio.</span>
+                        </div>
                     </label>
-                    {{ project_form.video_demo }}
-                    <span id="videoFileName" class="upload-tip">Envie seu arquivo de animação em vídeo (.mp4, .webm, .mov) ou .gif para tocar no feed e no player.</span>
-                    <video id="videoUploadPreview" style="display: none; width: 100%; max-height: 180px; border-radius: 10px; margin-top: 8px; background: #000; object-fit: cover;" controls muted loop playsinline></video>
-                </div>
-            </div>
 
-            <div class="form-group">
-                <label>🖼️ Capa / Thumbnail Personalizada (Opcional)</label>
-                <div class="avatar-upload-controls">
-                    <label class="btn-upload-file" for="projectThumbnailInput">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                        <span>Selecionar Imagem de Capa</span>
-                    </label>
-                    {{ project_form.thumbnail }}
-                    <span id="thumbnailFileName" class="upload-tip">Opcional: imagem estática de capa (se não enviar, o próprio vídeo será exibido).</span>
+                    <div id="priceFieldContainerProfile" class="price-collapse-box" style="display: none;">
+                        <label for="id_project_price_profile" class="price-label">
+                            Preço do Asset / Projeto (R$)
+                        </label>
+                        <div class="price-input-wrapper">
+                            <span class="price-currency-tag">R$</span>
+                            <input type="text" inputmode="decimal" name="price" id="id_project_price_profile" class="form-control-art price-number-input" placeholder="0,00">
+                        </div>
+                        <div class="price-quick-chips">
+                            <button type="button" class="price-chip-btn" onclick="document.getElementById('id_project_price_profile').value='29,90'">R$ 29,90</button>
+                            <button type="button" class="price-chip-btn" onclick="document.getElementById('id_project_price_profile').value='49,90'">R$ 49,90</button>
+                            <button type="button" class="price-chip-btn" onclick="document.getElementById('id_project_price_profile').value='99,90'">R$ 99,90</button>
+                            <button type="button" class="price-chip-btn" onclick="document.getElementById('id_project_price_profile').value='199,90'">R$ 199,90</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -957,8 +1329,17 @@
                     {{ hiring_form.project_title }}
                 </div>
                 <div class="form-group">
-                    <label for="id_budget">Orçamento Estimado</label>
-                    {{ hiring_form.budget }}
+                    <label for="id_budget">Orçamento Estimado (R$)</label>
+                    <div class="currency-input-wrapper">
+                        <span class="currency-prefix-badge">R$</span>
+                        <input type="text" name="budget" id="id_budget" class="form-control-art currency-real-input" placeholder="0,00" autocomplete="off" inputmode="numeric">
+                    </div>
+                    <div class="budget-suggestion-chips">
+                        <button type="button" class="budget-chip" onclick="applyQuickBudget(this, 'R$ 500,00')">R$ 500</button>
+                        <button type="button" class="budget-chip" onclick="applyQuickBudget(this, 'R$ 1.200,00')">R$ 1.200</button>
+                        <button type="button" class="budget-chip" onclick="applyQuickBudget(this, 'R$ 2.500,00')">R$ 2.500</button>
+                        <button type="button" class="budget-chip" onclick="applyQuickBudget(this, 'R$ 5.000,00')">R$ 5.000+</button>
+                    </div>
                 </div>
             </div>
 
@@ -1018,6 +1399,71 @@
         </form>
     </div>
 </div>
+
+<!-- Modal Interativo de Conexões (Seguidores & Seguindo) -->
+<div id="followListModal" class="followers-modal-backdrop" style="display: none;">
+    <div class="followers-modal-card">
+        <div class="followers-modal-header">
+            <div class="followers-tabs-switch">
+                <button type="button" class="followers-switch-btn active" id="modalBtnFollowers" onclick="switchFollowModalTab('followers')">
+                    Seguidores (<span id="modalFollowersCount">{{ followers_count }}</span>)
+                </button>
+                <button type="button" class="followers-switch-btn" id="modalBtnFollowing" onclick="switchFollowModalTab('following')">
+                    Seguindo (<span id="modalFollowingCount">{{ following_count }}</span>)
+                </button>
+            </div>
+            <button type="button" class="modal-close-btn" onclick="closeFollowModal()" style="font-size: 1.5rem; background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px 8px;">&times;</button>
+        </div>
+        <div class="followers-modal-body" id="modalFollowersListBody">
+            {% for item in followers_list %}
+                <div class="follower-card" style="padding: 12px 14px;">
+                    <a href="{% url 'profile' item.follower.username %}" class="follower-user-info">
+                        {% if item.follower.profile.avatar %}
+                            <img src="{{ item.follower.profile.avatar.url }}" alt="{{ item.follower.username }}" class="follower-avatar-circle" style="width: 40px; height: 40px;">
+                        {% else %}
+                            <div class="follower-avatar-ph" style="width: 40px; height: 40px; font-size: 0.95rem;">{{ item.follower.username|slice:":1"|upper }}</div>
+                        {% endif %}
+                        <div class="follower-text-details">
+                            <div class="follower-name-row">{{ item.follower.first_name|default:item.follower.username }}</div>
+                            <div class="follower-handle-row">@{{ item.follower.username }}</div>
+                        </div>
+                    </a>
+                    {% if request.user.is_authenticated and request.user != item.follower %}
+                        <button type="button" class="btn-follow-toggle {% if item.follower.id in current_user_following_ids %}following{% endif %}" onclick="toggleFollowCard('{{ item.follower.username }}', this)" style="padding: 5px 12px; font-size: 0.8rem;">
+                            {% if item.follower.id in current_user_following_ids %}✓ Seguindo{% else %}+ Seguir{% endif %}
+                        </button>
+                    {% endif %}
+                </div>
+            {% empty %}
+                <p style="text-align: center; color: var(--text-muted); padding: 30px 0;">Nenhum seguidor ainda.</p>
+            {% endfor %}
+        </div>
+        <div class="followers-modal-body" id="modalFollowingListBody" style="display: none;">
+            {% for item in following_list %}
+                <div class="follower-card" style="padding: 12px 14px;">
+                    <a href="{% url 'profile' item.following.username %}" class="follower-user-info">
+                        {% if item.following.profile.avatar %}
+                            <img src="{{ item.following.profile.avatar.url }}" alt="{{ item.following.username }}" class="follower-avatar-circle" style="width: 40px; height: 40px;">
+                        {% else %}
+                            <div class="follower-avatar-ph" style="width: 40px; height: 40px; font-size: 0.95rem;">{{ item.following.username|slice:":1"|upper }}</div>
+                        {% endif %}
+                        <div class="follower-text-details">
+                            <div class="follower-name-row">{{ item.following.first_name|default:item.following.username }}</div>
+                            <div class="follower-handle-row">@{{ item.following.username }}</div>
+                        </div>
+                    </a>
+                    {% if request.user.is_authenticated and request.user != item.following %}
+                        <button type="button" class="btn-follow-toggle {% if item.following.id in current_user_following_ids %}following{% endif %}" onclick="toggleFollowCard('{{ item.following.username }}', this)" style="padding: 5px 12px; font-size: 0.8rem;">
+                            {% if item.following.id in current_user_following_ids %}✓ Seguindo{% else %}+ Seguir{% endif %}
+                        </button>
+                    {% endif %}
+                </div>
+            {% empty %}
+                <p style="text-align: center; color: var(--text-muted); padding: 30px 0;">Não está seguindo ninguém ainda.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
 {% endblock conteudo_principal %}
 
 {% block extra_js %}
@@ -1029,18 +1475,26 @@
 
         const tabBtnMap = {
             'projects': 'tabBtnProjects',
+            'followers': 'tabBtnFollowers',
+            'following': 'tabBtnFollowing',
             'saved': 'tabBtnSaved',
             'liked': 'tabBtnLiked',
-            'partnerships': 'tabBtnPartnerships',
+            'partnerships': 'tabBtnPartnershipsAccepted',
+            'partnerships_accepted': 'tabBtnPartnershipsAccepted',
+            'partnerships_pending': 'tabBtnPartnershipsPending',
             'proposals': 'tabBtnProposals',
             'edit': 'tabBtnEdit'
         };
 
         const tabPaneMap = {
             'projects': 'tabPaneProjects',
+            'followers': 'tabPaneFollowers',
+            'following': 'tabPaneFollowing',
             'saved': 'tabPaneSaved',
             'liked': 'tabPaneLiked',
-            'partnerships': 'tabPanePartnerships',
+            'partnerships': 'tabPanePartnershipsAccepted',
+            'partnerships_accepted': 'tabPanePartnershipsAccepted',
+            'partnerships_pending': 'tabPanePartnershipsPending',
             'proposals': 'tabPaneProposals',
             'edit': 'tabPaneEdit'
         };
@@ -1051,15 +1505,88 @@
         if (tabPaneMap[tabName] && document.getElementById(tabPaneMap[tabName])) {
             document.getElementById(tabPaneMap[tabName]).classList.add('active');
         }
+
+        if (tabName === 'partnerships' || tabName === 'partnerships_accepted' || tabName === 'partnerships_pending') {
+            setTimeout(scrollAllChatBoxesToBottom, 60);
+        }
     }
 
-    // Suporte a hash da URL para abrir aba diretamente (ex: #parcerias, #salvos)
+    // Modal de Conexões (Seguidores / Seguindo)
+    function openFollowModal(type = 'followers') {
+        const modal = document.getElementById('followListModal');
+        if (!modal) return;
+        switchFollowModalTab(type);
+        modal.style.display = 'flex';
+    }
+
+    function closeFollowModal() {
+        const modal = document.getElementById('followListModal');
+        if (modal) modal.style.display = 'none';
+    }
+
+    function switchFollowModalTab(type) {
+        const btnFollowers = document.getElementById('modalBtnFollowers');
+        const btnFollowing = document.getElementById('modalBtnFollowing');
+        const bodyFollowers = document.getElementById('modalFollowersListBody');
+        const bodyFollowing = document.getElementById('modalFollowingListBody');
+
+        if (type === 'following') {
+            btnFollowers?.classList.remove('active');
+            btnFollowing?.classList.add('active');
+            if (bodyFollowers) bodyFollowers.style.display = 'none';
+            if (bodyFollowing) bodyFollowing.style.display = 'flex';
+        } else {
+            btnFollowing?.classList.remove('active');
+            btnFollowers?.classList.add('active');
+            if (bodyFollowing) bodyFollowing.style.display = 'none';
+            if (bodyFollowers) bodyFollowers.style.display = 'flex';
+        }
+    }
+
+    // Seguir / Deixar de Seguir a partir de um Card na lista de seguidores
+    async function toggleFollowCard(username, btn) {
+        try {
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '{{ csrf_token }}';
+            const response = await fetch(`/perfil/${username}/seguir/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            const data = await response.json();
+            if (data.status === 'ok' || data.success) {
+                if (data.is_following) {
+                    btn.classList.add('following');
+                    btn.textContent = '✓ Seguindo';
+                } else {
+                    btn.classList.remove('following');
+                    btn.textContent = '+ Seguir';
+                }
+            }
+        } catch (e) {
+            console.error('Erro ao seguir:', e);
+        }
+    }
+
+    // Notificações gerenciadas globalmente em base.html
+    // Suporte a hash da URL para abrir aba diretamente (ex: #seguidores, #seguindo, #parcerias, #salvos)
     function checkHashAndOpenTab() {
+        {% if has_edit_errors %}
+            openTab('edit');
+            return;
+        {% endif %}
         const hash = window.location.hash.replace('#', '');
-        if (['projects', 'saved', 'liked', 'partnerships', 'proposals', 'edit'].includes(hash)) {
+        if (['projects', 'followers', 'following', 'saved', 'liked', 'partnerships_accepted', 'partnerships_pending', 'proposals', 'edit'].includes(hash)) {
             openTab(hash);
-        } else if (hash === 'parcerias') {
-            openTab('partnerships');
+        } else if (hash === 'seguidores') {
+            openTab('followers');
+        } else if (hash === 'seguindo') {
+            openTab('following');
+        } else if (hash === 'parcerias' || hash === 'parcerias-aceitas') {
+            openTab('partnerships_accepted');
+        } else if (hash === 'parcerias-pendentes') {
+            openTab('partnerships_pending');
         } else if (hash === 'salvos') {
             openTab('saved');
         } else if (hash === 'curtidos') {
@@ -1166,10 +1693,138 @@
         if (e.target === partModal) {
             closePartnershipModal();
         }
+        const followModal = document.getElementById('followListModal');
+        if (e.target === followModal) {
+            closeFollowModal();
+        }
     });
 
-    // Preview ao vivo da imagem de avatar no formulário
-    const avatarInput = document.querySelector('.avatar-file-input');
+    // =========================================================================
+    // UPLOAD DIRETO DE CAPA & AVATAR (1-CLIQUE ESTILO LINKEDIN)
+    // =========================================================================
+    async function handleDirectCoverUpload(input) {
+        if (!input.files || input.files.length === 0) return;
+        const file = input.files[0];
+
+        // 1. Preview imediato no banner
+        const bannerContainer = document.getElementById('profileCoverBanner');
+        let coverImg = document.getElementById('coverBannerImg');
+        const coverGrad = document.getElementById('coverBannerGradient');
+        const btnText = document.getElementById('btnEditCoverText');
+        const btn = document.getElementById('btnEditCoverBanner');
+
+        const originalBtnText = btnText ? btnText.textContent : 'Editar Capa';
+        if (btnText) btnText.textContent = '⏳ Salvando capa...';
+        if (btn) btn.disabled = true;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            if (coverImg) {
+                coverImg.src = e.target.result;
+            } else if (bannerContainer) {
+                if (coverGrad) coverGrad.style.display = 'none';
+                coverImg = document.createElement('img');
+                coverImg.id = 'coverBannerImg';
+                coverImg.src = e.target.result;
+                coverImg.alt = 'Capa do Perfil';
+                coverImg.className = 'cover-banner-img';
+                bannerContainer.prepend(coverImg);
+            }
+        };
+        reader.readAsDataURL(file);
+
+        // 2. Envio instantâneo via AJAX
+        try {
+            const formData = new FormData();
+            formData.append('cover_image', file);
+
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '{{ csrf_token }}';
+            const response = await fetch("{% url 'update_cover_image' %}", {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': csrfToken
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+            if (data.success && data.cover_url) {
+                if (coverImg) coverImg.src = data.cover_url;
+                if (btnText) btnText.textContent = '✓ Capa Salva!';
+                setTimeout(() => {
+                    if (btnText) btnText.textContent = 'Editar Capa';
+                    if (btn) btn.disabled = false;
+                }, 2000);
+            } else {
+                alert(data.error || 'Erro ao salvar a imagem de capa.');
+                if (btnText) btnText.textContent = originalBtnText;
+                if (btn) btn.disabled = false;
+            }
+        } catch (err) {
+            console.error('Erro no upload de capa:', err);
+            if (btnText) btnText.textContent = originalBtnText;
+            if (btn) btn.disabled = false;
+        }
+    }
+
+    async function handleDirectAvatarUpload(input) {
+        if (!input.files || input.files.length === 0) return;
+        const file = input.files[0];
+
+        const avatarDisplay = document.getElementById('profileAvatarDisplay');
+        const avatarFallback = document.getElementById('profileAvatarFallback');
+        const btn = document.getElementById('btnAvatarCameraDirect');
+
+        if (btn) btn.disabled = true;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            if (avatarDisplay) {
+                avatarDisplay.src = e.target.result;
+            } else if (avatarFallback) {
+                const newImg = document.createElement('img');
+                newImg.id = 'profileAvatarDisplay';
+                newImg.src = e.target.result;
+                newImg.alt = 'Foto de Perfil';
+                newImg.className = 'profile-avatar-linkedin-img';
+                avatarFallback.replaceWith(newImg);
+            }
+        };
+        reader.readAsDataURL(file);
+
+        try {
+            const formData = new FormData();
+            formData.append('avatar', file);
+
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '{{ csrf_token }}';
+            const response = await fetch("{% url 'update_avatar' %}", {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': csrfToken
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+            if (data.success && data.avatar_url) {
+                const currentAvatar = document.getElementById('profileAvatarDisplay');
+                if (currentAvatar) currentAvatar.src = data.avatar_url;
+                const headerAvatar = document.querySelector('.user-avatar-img');
+                if (headerAvatar) headerAvatar.src = data.avatar_url;
+            } else {
+                alert(data.error || 'Erro ao salvar o avatar.');
+            }
+        } catch (err) {
+            console.error('Erro no upload do avatar:', err);
+        } finally {
+            if (btn) btn.disabled = false;
+        }
+    }
+
+    // Preview ao vivo nos inputs do formulário de edição
+    const avatarInput = document.getElementById('avatarFileInput');
     if (avatarInput) {
         avatarInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -1193,53 +1848,259 @@
         });
     }
 
-    // Nome do arquivo de vídeo e pré-visualização ao selecionar no modal
-    const videoInput = document.getElementById('projectVideoInput');
-    if (videoInput) {
-        videoInput.addEventListener('change', (e) => {
-            const nameDisplay = document.getElementById('videoFileName');
-            const previewVideo = document.getElementById('videoUploadPreview');
-            if (e.target.files.length > 0) {
-                const file = e.target.files[0];
-                if (nameDisplay) {
-                    const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
-                    nameDisplay.textContent = `🎬 Vídeo selecionado: ${file.name} (${sizeMB} MB)`;
-                    nameDisplay.style.color = 'var(--neon-cyan)';
-                    nameDisplay.style.fontWeight = '600';
-                }
-                if (previewVideo && file.type.startsWith('video/')) {
-                    const fileURL = URL.createObjectURL(file);
-                    previewVideo.src = fileURL;
-                    previewVideo.style.display = 'block';
-                    previewVideo.onloadedmetadata = () => {
-                        const durationInput = document.querySelector('#publishProjectModal input[name="duration"]');
-                        if (durationInput && (!durationInput.value || durationInput.value === '0:30')) {
-                            const totalSec = Math.round(previewVideo.duration || 0);
-                            if (totalSec > 0) {
-                                const mins = Math.floor(totalSec / 60);
-                                const secs = String(totalSec % 60).padStart(2, '0');
-                                durationInput.value = `${mins}:${secs}`;
-                            }
-                        }
-                    };
-                } else if (previewVideo) {
-                    previewVideo.style.display = 'none';
-                }
+    const coverInput = document.getElementById('coverFileInput');
+    if (coverInput) {
+        coverInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const previewImg = document.getElementById('coverPreviewImg');
+                    const previewFallback = document.getElementById('coverPreviewFallback');
+                    if (previewImg) {
+                        previewImg.src = event.target.result;
+                    } else if (previewFallback) {
+                        const newImg = document.createElement('img');
+                        newImg.id = 'coverPreviewImg';
+                        newImg.src = event.target.result;
+                        newImg.className = 'preview-cover-rect';
+                        previewFallback.replaceWith(newImg);
+                    }
+                };
+                reader.readAsDataURL(file);
             }
         });
     }
 
-    // Nome do arquivo de thumbnail ao selecionar no modal
-    const thumbInput = document.getElementById('projectThumbnailInput');
-    if (thumbInput) {
-        thumbInput.addEventListener('change', (e) => {
-            const nameDisplay = document.getElementById('thumbnailFileName');
-            if (nameDisplay && e.target.files.length > 0) {
-                nameDisplay.textContent = `🖼️ Capa selecionada: ${e.target.files[0].name}`;
-                nameDisplay.style.color = 'var(--neon-cyan)';
-                nameDisplay.style.fontWeight = '600';
+    // Seleção e cálculo automático da duração do vídeo
+    function handleModernVideoUpload(input, previewId, metaCardId, nameId, durationId, sizeId, hiddenDurationId) {
+        if (!input.files || input.files.length === 0) return;
+        const file = input.files[0];
+        const previewVideo = document.getElementById(previewId);
+        const metaCard = document.getElementById(metaCardId);
+        const nameElem = document.getElementById(nameId);
+        const durationElem = document.getElementById(durationId);
+        const sizeElem = document.getElementById(sizeId);
+        const hiddenDurationInput = document.getElementById(hiddenDurationId);
+
+        if (nameElem) {
+            nameElem.textContent = file.name;
+        }
+        if (sizeElem) {
+            const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+            sizeElem.textContent = `💾 ${sizeMB} MB`;
+        }
+        if (metaCard) {
+            metaCard.style.display = 'block';
+        }
+
+        if (previewVideo && (file.type.startsWith('video/') || file.name.endsWith('.gif'))) {
+            const fileURL = URL.createObjectURL(file);
+            previewVideo.src = fileURL;
+            previewVideo.style.display = 'block';
+            previewVideo.onloadedmetadata = () => {
+                const totalSec = Math.round(previewVideo.duration || 0);
+                if (totalSec > 0) {
+                    const mins = Math.floor(totalSec / 60);
+                    const secs = String(totalSec % 60).padStart(2, '0');
+                    const durStr = `${mins}:${secs}`;
+                    if (durationElem) durationElem.textContent = `⏱️ ${durStr}`;
+                    if (hiddenDurationInput) hiddenDurationInput.value = durStr;
+                } else {
+                    if (durationElem) durationElem.textContent = '⏱️ Loop';
+                    if (hiddenDurationInput) hiddenDurationInput.value = 'Loop';
+                }
+            };
+        }
+    }
+
+    // Toggle de venda via Checkbox (simples, limpo e direto)
+    function toggleSaleCheckboxProfile(isChecked) {
+        const priceBox = document.getElementById('priceFieldContainerProfile');
+        const priceInput = document.getElementById('id_project_price_profile');
+
+        if (isChecked) {
+            if (priceBox) priceBox.style.display = 'block';
+            if (priceInput && (!priceInput.value || priceInput.value === '0.00' || priceInput.value === '0' || priceInput.value === '0,00')) {
+                priceInput.value = '49,90';
             }
+            if (priceInput) priceInput.focus();
+        } else {
+            if (priceBox) priceBox.style.display = 'none';
+            if (priceInput) priceInput.value = '';
+        }
+    }
+
+    // Seguir / Deixar de Seguir Artista de forma assíncrona
+    async function toggleFollow(username) {
+        const btn = document.getElementById('btnFollowToggle');
+        const followText = document.getElementById('followText');
+        const followersDisplay = document.getElementById('followersCountDisplay');
+        if (!btn) return;
+
+        btn.disabled = true;
+
+        try {
+            const resp = await fetch(`/perfil/${username}/seguir/`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Accept': 'application/json'
+                }
+            });
+
+            const data = await resp.json();
+            if (data.success) {
+                if (data.is_following) {
+                    btn.classList.add('following');
+                    if (followText) followText.textContent = 'Seguindo';
+                    const icon = btn.querySelector('.follow-icon');
+                    if (icon) icon.textContent = '✓';
+                } else {
+                    btn.classList.remove('following');
+                    if (followText) followText.textContent = 'Seguir';
+                    const icon = btn.querySelector('.follow-icon');
+                    if (icon) icon.textContent = '+';
+                }
+                if (followersDisplay && data.followers_count !== undefined) {
+                    followersDisplay.textContent = data.followers_count;
+                }
+            }
+        } catch (err) {
+            console.error('Erro ao seguir criador:', err);
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    // =========================================================================
+    // CHAT FLUIDO DE PARCERIAS & COLABORAÇÃO (AJAX + AUTO-SCROLL + POLLING)
+    // =========================================================================
+    function escapeHtml(str) {
+        if (!str) return '';
+        const d = document.createElement('div');
+        d.textContent = str;
+        return d.innerHTML;
+    }
+
+    function scrollAllChatBoxesToBottom() {
+        document.querySelectorAll('.chat-messages-box').forEach(box => {
+            box.scrollTop = box.scrollHeight;
         });
     }
+
+    // Rolagem suave inicial ao carregar a página
+    window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(scrollAllChatBoxesToBottom, 150);
+    });
+
+    // Envio instantâneo de mensagens sem recarregar a tela
+    document.addEventListener('submit', function(e) {
+        const form = e.target.closest('.chat-input-form');
+        if (!form) return;
+
+        e.preventDefault();
+        const input = form.querySelector('input[name="text"]');
+        if (!input || !input.value.trim()) return;
+
+        const container = form.closest('.partnership-chat-container');
+        const messagesBox = container ? container.querySelector('.chat-messages-box') : null;
+        const submitBtn = form.querySelector('button[type="submit"]');
+
+        const messageText = input.value.trim();
+        input.value = '';
+        if (submitBtn) submitBtn.disabled = true;
+
+        const formData = new FormData(form);
+        formData.set('text', messageText);
+
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.message) {
+                if (messagesBox) {
+                    // Remover aviso de "inicie a conversa" ou vazio
+                    const emptyNotice = messagesBox.querySelector('p');
+                    if (emptyNotice) emptyNotice.remove();
+
+                    const bubble = document.createElement('div');
+                    bubble.className = 'chat-bubble chat-bubble-mine';
+                    bubble.innerHTML = `
+                        <div class="chat-bubble-meta">
+                            <span class="chat-sender-name">Você</span>
+                            <span>${escapeHtml(data.message.created_at)}</span>
+                        </div>
+                        <div>${escapeHtml(data.message.text)}</div>
+                    `;
+                    messagesBox.appendChild(bubble);
+                    messagesBox.scrollTop = messagesBox.scrollHeight;
+                }
+            } else {
+                alert(data.message || 'Erro ao enviar a mensagem.');
+                input.value = messageText;
+            }
+        })
+        .catch(err => {
+            console.error('Erro na mensagem de parceria:', err);
+            input.value = messageText;
+        })
+        .finally(() => {
+            if (submitBtn) submitBtn.disabled = false;
+            input.focus();
+        });
+    });
+
+    // Atualização em segundo plano (polling fluido a cada 4 segundos)
+    function syncPartnershipChats() {
+        const containers = document.querySelectorAll('.partnership-chat-container[data-proposal-id]');
+        if (!containers.length) return;
+
+        containers.forEach(container => {
+            const proposalId = container.dataset.proposalId;
+            const messagesBox = container.querySelector('.chat-messages-box');
+            if (!proposalId || !messagesBox) return;
+
+            fetch(`/parceria/${proposalId}/mensagens/`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success || !data.messages) return;
+
+                const currentBubbles = messagesBox.querySelectorAll('.chat-bubble');
+                // Se a contagem mudou ou o box estiver vazio
+                if (currentBubbles.length !== data.messages.length) {
+                    const isAtBottom = (messagesBox.scrollHeight - messagesBox.scrollTop - messagesBox.clientHeight) < 60;
+                    messagesBox.innerHTML = '';
+                    
+                    data.messages.forEach(msg => {
+                        const bubble = document.createElement('div');
+                        bubble.className = `chat-bubble ${msg.is_mine ? 'chat-bubble-mine' : 'chat-bubble-partner'}`;
+                        bubble.innerHTML = `
+                            <div class="chat-bubble-meta">
+                                <span class="chat-sender-name">${msg.is_mine ? 'Você' : '@' + escapeHtml(msg.sender_username)}</span>
+                                <span>${escapeHtml(msg.created_at)}</span>
+                            </div>
+                            <div>${escapeHtml(msg.text)}</div>
+                        `;
+                        messagesBox.appendChild(bubble);
+                    });
+
+                    if (isAtBottom || currentBubbles.length === 0) {
+                        messagesBox.scrollTop = messagesBox.scrollHeight;
+                    }
+                }
+            })
+            .catch(() => {});
+        });
+    }
+    setInterval(syncPartnershipChats, 4000);
 </script>
 {% endblock extra_js %}

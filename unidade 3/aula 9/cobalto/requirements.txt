@@ -1,1 +1,19 @@
-Django>=5.2
+O ArtFlow é uma plataforma web completa e operacional para o ecossistema de motion design que conecta criativos e clientes por meio de uma vitrine de portfólios em alta qualidade e de um sistema de contato direto. Além de facilitar a contratação profissional, a ferramenta conta com um módulo transacional integrado para a comercialização de direitos de uso de artes, funcionando como um hub centralizado e seguro para todo o mercado da área.
+
+
+
+obs: Apresentação sobre o site (detalhe)
+
+feedback 1 (cu.dev): mano site muito bom, gostei muito do estilo pixelado do site e a interface em si, so achei a combinação de cores meio genérica. Mas de resto ta muito foda mano bora vascao
+
+
+Funcionando muito bem, mas com algumas evoluções que podem ficar mais intuitiva para usuários. 
+A interação com os usuários criando também um botão de sugestões seria uma ideia.
+
+
+Gostei bastante, mas a senha não deixa eu por nada que da erro.
+
+Acho que na pagina home do site seria ideal um pouco menos de animação no fundo porque ao exibir os projetos causa uma confusão visual e impede que o usuário bata o olho e indifique os motions de algumas artes.
+Parte de login funcionando bem, interessante mostrar quantos usuários estão ativos. 
+O filtro de pesquisa está bugando a formatação do site quando digito alguma palavra.
+No geral o site está muito bom e bem completo. 
